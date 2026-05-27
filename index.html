@@ -1,0 +1,1366 @@
+已将网页整体风格调整为浅色科技感，底色改为白色，同时优化了文字与卡片配色，确保清晰美观。以下是完整代码：
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apex资源展示</title>
+    <style>
+        :root {
+            --bg-page: #f5f7fa;
+            --bg-card: #ffffff;
+            --blue-primary: #2a6ef5;
+            --blue-glow: #1a5cd0;
+            --blue-light: #e8f0fe;
+            --text-primary: #1a2c3e;
+            --text-secondary: #5a6b7c;
+            --accent-red: #e63946;
+            --accent-gold: #f0a500;
+            --border-glow: rgba(42, 110, 245, 0.3);
+            --border-subtle: #dce3ea;
+            --shadow-glow: 0 0 18px rgba(42, 110, 245, 0.15);
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.06);
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --radius-sm: 6px;
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', 'Monaco', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-page);
+            background-image: 
+                radial-gradient(ellipse at 20% 15%, rgba(42, 110, 245, 0.06) 0%, transparent 55%),
+                radial-gradient(ellipse at 75% 20%, rgba(42, 110, 245, 0.04) 0%, transparent 55%),
+                radial-gradient(ellipse at 50% 60%, rgba(42, 110, 245, 0.03) 0%, transparent 60%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 浅色网格线 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background-image:
+                linear-gradient(rgba(42, 110, 245, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(42, 110, 245, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+        }
+
+        /* 浮动光点 */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -200px;
+            left: -200px;
+            width: 600px;
+            height: 600px;
+            pointer-events: none;
+            z-index: 0;
+            background: radial-gradient(circle, rgba(42, 110, 245, 0.05) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: floatOrb 20s ease-in-out infinite;
+        }
+        @keyframes floatOrb {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(120px, 80px) scale(1.2); }
+            50% { transform: translate(200px, -40px) scale(0.9); }
+            75% { transform: translate(-30px, 150px) scale(1.1); }
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 24px 40px;
+        }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 8px;
+            margin-bottom: 10px;
+            position: relative;
+            gap: 16px;
+        }
+        .top-bar__side {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            z-index: 2;
+        }
+        .top-bar__side--left { min-width: 70px; }
+        .top-bar__side--right { min-width: 70px; }
+        .top-bar__center {
+            flex: 1 1 auto;
+            text-align: center;
+            z-index: 1;
+        }
+
+        /* 小按钮样式 */
+        .btn-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            color: var(--text-secondary);
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+        .btn-icon--small {
+            width: 48px;
+            height: 48px;
+            padding: 6px;
+        }
+        .btn-icon:hover {
+            border-color: var(--blue-primary);
+            box-shadow: var(--shadow-glow);
+            color: var(--blue-primary);
+            transform: translateY(-2px);
+            background: #f8fbff;
+        }
+        .btn-icon:active {
+            transform: scale(0.94);
+            transition: 0.1s;
+        }
+        .btn-icon__symbol {
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1;
+            color: inherit;
+        }
+        .btn-icon__label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            margin-top: 1px;
+            transition: var(--transition-fast);
+        }
+        .btn-icon:hover .btn-icon__label {
+            color: var(--blue-primary);
+        }
+        .btn-icon--search {
+            border-color: rgba(42, 110, 245, 0.3);
+            background: #f0f6ff;
+        }
+        .btn-icon--search .btn-icon__symbol {
+            font-size: 20px;
+        }
+
+        /* 标题流萤效果（深蓝渐变） */
+        .main-title {
+            display: inline-block;
+            font-size: clamp(2rem, 5vw, 3.8rem);
+            font-weight: 900;
+            letter-spacing: 0.06em;
+            text-align: center;
+            background: linear-gradient(135deg,
+                    #1a5cd0 0%, #2a6ef5 25%, #4d8bff 50%,
+                    #1a5cd0 75%, #2a6ef5 100%);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            animation: shimmerFlow 4.5s ease-in-out infinite;
+            filter: drop-shadow(0 0 8px rgba(42, 110, 245, 0.2));
+            position: relative;
+            white-space: nowrap;
+        }
+        @keyframes shimmerFlow {
+            0% { background-position: 0% 50%; }
+            30% { background-position: 100% 30%; }
+            60% { background-position: 200% 70%; }
+            100% { background-position: 0% 50%; }
+        }
+        .main-title::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(42, 110, 245, 0.5), transparent);
+            border-radius: 2px;
+            animation: linePulse 3s ease-in-out infinite;
+        }
+        @keyframes linePulse {
+            0%, 100% { opacity: 0.4; width: 55%; }
+            50% { opacity: 1; width: 75%; }
+        }
+
+        /* 商品网格 */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+            padding: 8px 0;
+            min-height: 300px;
+        }
+        @media (max-width: 600px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+                gap: 12px;
+            }
+        }
+        @media (min-width: 1600px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+                gap: 24px;
+            }
+        }
+
+        /* 商品卡片 */
+        .product-card {
+            background: #fff;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-card);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .product-card:hover {
+            border-color: var(--blue-primary);
+            box-shadow: 0 10px 30px rgba(42, 110, 245, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05);
+            transform: translateY(-5px);
+        }
+        .product-card:active {
+            transform: scale(0.97);
+            transition: 0.12s;
+        }
+        .product-card__img-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4/3;
+            overflow: hidden;
+            background: #f0f2f5;
+            flex-shrink: 0;
+        }
+        .product-card__img-wrap::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 1px solid rgba(42, 110, 245, 0.05);
+            border-radius: inherit;
+            pointer-events: none;
+        }
+        .product-card__img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+            display: block;
+        }
+        .product-card:hover .product-card__img {
+            transform: scale(1.06);
+        }
+        .product-card__img--placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #eef1f5;
+            color: #8899aa;
+            font-size: 3rem;
+            width: 100%;
+            height: 100%;
+        }
+        .product-card__body {
+            padding: 14px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1 1 auto;
+        }
+        .product-card__title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            letter-spacing: 0.02em;
+        }
+        .product-card__code {
+            font-family: var(--font-mono);
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.05em;
+            background: var(--blue-primary);
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            align-self: flex-start;
+            transition: var(--transition-fast);
+        }
+        .product-card:hover .product-card__code {
+            background: #1e5cd6;
+            box-shadow: 0 0 12px rgba(42, 110, 245, 0.3);
+        }
+        .product-card__price {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--accent-red);
+            letter-spacing: 0.03em;
+            margin-top: auto;
+        }
+        .product-card__price::before {
+            content: '¥ ';
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            gap: 12px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            letter-spacing: 0.03em;
+            grid-column: 1 / -1;
+        }
+        .loading-spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid rgba(42, 110, 245, 0.2);
+            border-top-color: var(--blue-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-indicator--hidden { display: none; }
+        .no-more {
+            text-align: center;
+            padding: 30px 20px;
+            color: #8899aa;
+            font-size: 0.9rem;
+            letter-spacing: 0.04em;
+            grid-column: 1 / -1;
+        }
+        .no-more--hidden { display: none; }
+        .sentinel {
+            height: 1px;
+            width: 100%;
+            grid-column: 1 / -1;
+            pointer-events: none;
+        }
+
+        /* 弹窗通用 */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.25s ease-out;
+            overflow-y: auto;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-overlay--hidden { display: none; }
+        .modal-panel {
+            background: #ffffff;
+            background-image: radial-gradient(ellipse at 30% 20%, rgba(42, 110, 245, 0.04) 0%, transparent 60%);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 28px 30px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1), 0 0 30px rgba(42, 110, 245, 0.08);
+            position: relative;
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-panel--wide { max-width: 900px; }
+        .modal-panel--small { max-width: 500px; }
+        .modal-close {
+            position: absolute;
+            top: 14px;
+            right: 18px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #f0f2f5;
+            border: 1px solid #ddd;
+            color: #555;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-fast);
+            z-index: 5;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .modal-close:hover {
+            background: #ffebee;
+            border-color: #e63946;
+            color: #e63946;
+        }
+
+        /* 搜索弹窗 */
+        .search-input-wrap { position: relative; margin-bottom: 20px; }
+        .search-input {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 1.1rem;
+            background: #f5f7fa;
+            border: 2px solid var(--border-subtle);
+            border-radius: 30px;
+            color: var(--text-primary);
+            outline: none;
+            transition: var(--transition-smooth);
+            letter-spacing: 0.03em;
+            font-family: inherit;
+        }
+        .search-input::placeholder { color: #8899aa; }
+        .search-input:focus {
+            border-color: var(--blue-primary);
+            box-shadow: 0 0 20px rgba(42, 110, 245, 0.15);
+            background: #fff;
+        }
+        .search-results {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 55vh;
+            overflow-y: auto;
+        }
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            background: #f8fafc;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+        .search-result-item:hover {
+            border-color: var(--blue-primary);
+            background: #eef3ff;
+            box-shadow: 0 0 12px rgba(42, 110, 245, 0.1);
+        }
+        .search-result-item__img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 6px;
+            flex-shrink: 0;
+            background: #eee;
+        }
+        .search-result-item__info { flex: 1; min-width: 0; }
+        .search-result-item__title {
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .search-result-item__code {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--blue-primary);
+        }
+        .search-result-item__price {
+            color: var(--accent-red);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .search-no-result {
+            text-align: center;
+            padding: 30px;
+            color: #8899aa;
+            font-size: 1rem;
+        }
+
+        /* 说明弹窗 */
+        .info-section { margin-bottom: 22px; }
+        .info-section__title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: 0.03em;
+            border-left: 3px solid var(--blue-primary);
+            padding-left: 12px;
+        }
+        .info-section__content {
+            background: #f5f7fa;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            min-height: 60px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* 详情弹窗 */
+        .detail-layout {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .detail-media {
+            flex: 1 1 320px;
+            min-width: 280px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .detail-media__image {
+            width: 100%;
+            border-radius: var(--radius-md);
+            object-fit: cover;
+            max-height: 350px;
+            background: #f0f2f5;
+            border: 1px solid var(--border-subtle);
+        }
+        .detail-media__video-wrap {
+            width: 100%;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--border-subtle);
+            background: #000;
+        }
+        .detail-media__video {
+            width: 100%;
+            display: block;
+            border-radius: var(--radius-md);
+            outline: none;
+        }
+        .detail-info {
+            flex: 1 1 280px;
+            min-width: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .detail-info__title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: 0.03em;
+            line-height: 1.2;
+        }
+        .detail-info__code {
+            font-family: var(--font-mono);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            background: var(--blue-primary);
+            display: inline-block;
+            padding: 6px 18px;
+            border-radius: 22px;
+            letter-spacing: 0.06em;
+            align-self: flex-start;
+        }
+        .detail-info__desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            white-space: pre-wrap;
+            word-break: break-word;
+            flex: 1 1 auto;
+        }
+        .detail-info__bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-subtle);
+        }
+        .detail-info__price {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--accent-red);
+            letter-spacing: 0.04em;
+        }
+        .detail-info__price::before {
+            content: '¥';
+            font-size: 1.2rem;
+            margin-right: 2px;
+        }
+        .btn-buy {
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            background: var(--accent-red);
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            box-shadow: 0 6px 20px rgba(230, 57, 70, 0.25);
+            -webkit-tap-highlight-color: transparent;
+            white-space: nowrap;
+        }
+        .btn-buy:hover {
+            background: #d12c3a;
+            box-shadow: 0 8px 25px rgba(230, 57, 70, 0.35);
+            transform: translateY(-2px);
+        }
+        .btn-buy:active {
+            transform: scale(0.94);
+            transition: 0.1s;
+        }
+
+        /* 购买确认弹窗 */
+        .purchase-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .purchase-info__row {
+            display: flex;
+            gap: 8px;
+            font-size: 0.95rem;
+            flex-wrap: wrap;
+        }
+        .purchase-info__label { color: var(--text-secondary); flex-shrink: 0; }
+        .purchase-info__value { color: var(--text-primary); font-weight: 600; }
+        .purchase-highlight {
+            background: #fff8e1;
+            border: 1px solid #f0d060;
+            border-radius: var(--radius-md);
+            padding: 16px 18px;
+            text-align: center;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #b45309;
+            letter-spacing: 0.03em;
+            margin: 6px 0;
+        }
+        .purchase-notice {
+            background: #f5f7fa;
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            font-size: 0.85rem;
+            color: #4a5a6a;
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .btn-copy {
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            background: #e8f0fe;
+            color: var(--blue-primary);
+            border: 1px solid rgba(42, 110, 245, 0.4);
+            border-radius: 26px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            -webkit-tap-highlight-color: transparent;
+            white-space: nowrap;
+        }
+        .btn-copy:hover {
+            background: #d0e2ff;
+            border-color: var(--blue-primary);
+            box-shadow: 0 0 14px rgba(42, 110, 245, 0.2);
+        }
+        .btn-copy--copied {
+            background: #e6f7ec !important;
+            border-color: #38a169 !important;
+            color: #2d6a4f !important;
+            transition: 0.2s;
+        }
+        .btn-confirm {
+            padding: 12px 28px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            background: #f0f2f5;
+            color: #333;
+            border: 1px solid #ccc;
+            border-radius: 26px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn-confirm:hover {
+            background: #e0e3e7;
+            border-color: #999;
+        }
+        .copy-hint {
+            font-size: 0.8rem;
+            color: #8899aa;
+            text-align: center;
+            margin-top: 2px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 300;
+            background: #fff;
+            border: 1px solid var(--blue-primary);
+            color: var(--text-primary);
+            padding: 12px 24px;
+            border-radius: 28px;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            animation: toastIn 0.35s ease-out, toastOut 0.35s ease-in 1.8s forwards;
+            pointer-events: none;
+            font-size: 0.9rem;
+        }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(30px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateX(-50%) translateY(0); }
+            to { opacity: 0; transform: translateX(-50%) translateY(20px); }
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(42, 110, 245, 0.2); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(42, 110, 245, 0.4); }
+
+        @media (max-width: 768px) {
+            .top-bar { gap: 8px; padding: 10px 0; }
+            .btn-icon--small { width: 38px; height: 38px; padding: 4px; }
+            .btn-icon__symbol { font-size: 17px; }
+            .btn-icon__label { font-size: 8px; }
+            .main-title { font-size: clamp(1.4rem, 6vw, 2.4rem); letter-spacing: 0.03em; }
+            .modal-panel { padding: 18px 14px; max-width: 95vw; border-radius: var(--radius-md); }
+            .detail-layout { flex-direction: column; gap: 14px; }
+            .detail-media__image { max-height: 240px; }
+            .detail-info__title { font-size: 1.3rem; }
+            .detail-info__code { font-size: 1.2rem; padding: 4px 14px; }
+            .detail-info__price { font-size: 1.5rem; }
+            .btn-buy { padding: 12px 24px; font-size: 1rem; }
+            .products-grid { gap: 12px; }
+            .product-card__body { padding: 10px 12px 12px; gap: 5px; }
+            .product-card__code { font-size: 1rem; padding: 3px 10px; }
+            .product-card__price { font-size: 1.1rem; }
+        }
+        @media (max-width: 400px) {
+            .products-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+            .product-card__img-wrap { aspect-ratio: 1/1; }
+            .product-card__title { font-size: 0.8rem; }
+            .product-card__code { font-size: 0.85rem; padding: 2px 8px; }
+            .product-card__price { font-size: 0.95rem; }
+            .top-bar__side--left, .top-bar__side--right { min-width: 44px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container" id="mainContainer">
+        <div class="top-bar">
+            <div class="top-bar__side top-bar__side--left">
+                <button class="btn-icon btn-icon--small" id="btnHelp" title="查看说明" aria-label="查看说明">
+                    <span class="btn-icon__symbol">?</span>
+                </button>
+                <span class="btn-icon__label">查看说明</span>
+            </div>
+            <div class="top-bar__center">
+                <h1 class="main-title">Apex资源展示</h1>
+            </div>
+            <div class="top-bar__side top-bar__side--right">
+                <button class="btn-icon btn-icon--small btn-icon--search" id="btnSearch" title="搜索商品" aria-label="搜索商品">
+                    <span class="btn-icon__symbol">🔍</span>
+                </button>
+                <span class="btn-icon__label">搜索</span>
+            </div>
+        </div>
+
+        <div class="products-grid" id="productsGrid"></div>
+        <div class="loading-indicator" id="loadingIndicator">
+            <div class="loading-spinner"></div>
+            <span>正在探索资源...</span>
+        </div>
+        <div class="sentinel" id="sentinel"></div>
+        <div class="no-more no-more--hidden" id="noMoreMsg">— 已展示全部商品 —</div>
+    </div>
+
+    <!-- 说明弹窗（只读） -->
+    <div class="modal-overlay modal-overlay--hidden" id="modalHelpOverlay">
+        <div class="modal-panel modal-panel--wide" id="modalHelpPanel">
+            <button class="modal-close" id="btnCloseHelp" aria-label="关闭">✕</button>
+            <div class="info-section">
+                <div class="info-section__title">📢 最近更新公告</div>
+                <div class="info-section__content" id="helpAnnouncement">
+                    【更新公告占位】请在此处编写最近的更新公告内容...
+                </div>
+            </div>
+            <div class="info-section">
+                <div class="info-section__title">📖 网站用法说明</div>
+                <div class="info-section__content" id="helpUsage">
+                    【用法说明占位】请在此处编写网站的使用说明...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 搜索弹窗 -->
+    <div class="modal-overlay modal-overlay--hidden" id="modalSearchOverlay">
+        <div class="modal-panel" id="modalSearchPanel">
+            <button class="modal-close" id="btnCloseSearch" aria-label="关闭">✕</button>
+            <div class="search-input-wrap">
+                <input type="text" class="search-input" id="searchInput" placeholder="输入资源码或名称关键词进行搜索..." autocomplete="off">
+            </div>
+            <div class="search-results" id="searchResults">
+                <div class="search-no-result">🔍 请在上方输入关键词开始搜索</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 商品详情弹窗 -->
+    <div class="modal-overlay modal-overlay--hidden" id="modalDetailOverlay">
+        <div class="modal-panel modal-panel--wide" id="modalDetailPanel">
+            <button class="modal-close" id="btnCloseDetail" aria-label="关闭">✕</button>
+            <div class="detail-layout">
+                <div class="detail-media">
+                    <img class="detail-media__image" id="detailImg" src="" alt="商品预览图" onerror="this.style.display='none'; document.getElementById('detailImgFallback').style.display='flex';">
+                    <div class="product-card__img--placeholder detail-media__image" id="detailImgFallback" style="display:none; aspect-ratio:4/3; border-radius:10px; font-size:2rem;">📷 暂无图片</div>
+                    <div class="detail-media__video-wrap" id="detailVideoWrap">
+                        <video class="detail-media__video" id="detailVideo" src="" controls preload="metadata" playsinline>
+                            您的浏览器不支持视频播放
+                        </video>
+                    </div>
+                </div>
+                <div class="detail-info">
+                    <div class="detail-info__title" id="detailTitle"></div>
+                    <div class="detail-info__code" id="detailCode"></div>
+                    <div class="detail-info__desc" id="detailDesc"></div>
+                    <div class="detail-info__bottom">
+                        <span class="detail-info__price" id="detailPrice"></span>
+                        <button class="btn-buy" id="btnBuy">购买</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 购买确认弹窗 -->
+    <div class="modal-overlay modal-overlay--hidden" id="modalPurchaseOverlay">
+        <div class="modal-panel modal-panel--small" id="modalPurchasePanel">
+            <button class="modal-close" id="btnClosePurchase" aria-label="关闭">✕</button>
+            <div class="purchase-info">
+                <div class="purchase-info__row">
+                    <span class="purchase-info__label">商品名称：</span>
+                    <span class="purchase-info__value" id="purchaseName"></span>
+                </div>
+                <div class="purchase-info__row">
+                    <span class="purchase-info__label">资源码：</span>
+                    <span class="purchase-info__value" id="purchaseCode" style="font-family:var(--font-mono);"></span>
+                </div>
+                <div class="purchase-info__row">
+                    <span class="purchase-info__label">价格：</span>
+                    <span class="purchase-info__value" id="purchasePrice" style="color:var(--accent-red); font-weight:700;"></span>
+                </div>
+                <div class="purchase-highlight" id="purchaseQQ">
+                    购买请加QQ号：<strong>xxx</strong>
+                </div>
+                <div class="purchase-notice">
+                    资源服务时间：工作日 20:00-23:00
+                    若购买资源请注明来源，以及需要购买资源对应的资源码。
+                    在服务时间内，我会向您发送付款码，请扫码支付截图。
+                    若不在服务时间内，请耐心等待。谢谢！
+                </div>
+                <div class="btn-row">
+                    <button class="btn-copy" id="btnCopyInfo">📋 复制产品信息</button>
+                    <button class="btn-confirm" id="btnConfirmPurchase">确定</button>
+                </div>
+                <div class="copy-hint">复制产品信息后，发送到上方QQ号以完成购买</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const CONFIG = {
+                libraryPath: './库/',
+                resourceCodeStart: 10001,
+                maxConsecutiveFails: 6,
+                batchSize: 8,
+                itemsPerLoad: 10,
+                qqNumber: 'xxx',
+                imageExtensions: ['jpg', 'png', 'jpeg', 'webp'],
+            };
+
+            let allProducts = [];
+            let displayedCount = 0;
+            let isLoading = false;
+            let allDiscovered = false;
+            let currentDetailProduct = null;
+            const discoveredCodes = new Set();
+
+            const productsGrid = document.getElementById('productsGrid');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const sentinel = document.getElementById('sentinel');
+            const noMoreMsg = document.getElementById('noMoreMsg');
+
+            const modalHelpOverlay = document.getElementById('modalHelpOverlay');
+            const modalSearchOverlay = document.getElementById('modalSearchOverlay');
+            const modalDetailOverlay = document.getElementById('modalDetailOverlay');
+            const modalPurchaseOverlay = document.getElementById('modalPurchaseOverlay');
+
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+
+            function showToast(message, duration = 2200) {
+                const existing = document.querySelector('.toast');
+                if (existing) existing.remove();
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                setTimeout(() => { if (toast.parentNode) toast.remove(); }, duration);
+            }
+
+            async function copyToClipboard(text) {
+                try {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(text);
+                    } else {
+                        const textarea = document.createElement('textarea');
+                        textarea.value = text;
+                        textarea.style.position = 'fixed';
+                        textarea.style.opacity = '0';
+                        textarea.style.left = '-9999px';
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+                    }
+                    return true;
+                } catch (err) {
+                    console.error('复制失败:', err);
+                    return false;
+                }
+            }
+
+            function escapeHTML(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            function openModal(overlay) {
+                overlay.classList.remove('modal-overlay--hidden');
+                document.body.style.overflow = 'hidden';
+            }
+            function closeModal(overlay) {
+                overlay.classList.add('modal-overlay--hidden');
+                const allOverlays = [modalHelpOverlay, modalSearchOverlay, modalDetailOverlay, modalPurchaseOverlay];
+                if (allOverlays.every(o => o.classList.contains('modal-overlay--hidden'))) {
+                    document.body.style.overflow = '';
+                }
+            }
+
+            [modalHelpOverlay, modalSearchOverlay, modalDetailOverlay, modalPurchaseOverlay].forEach(overlay => {
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === overlay) closeModal(overlay);
+                });
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const visibleOverlays = [modalPurchaseOverlay, modalDetailOverlay, modalSearchOverlay, modalHelpOverlay]
+                        .filter(o => !o.classList.contains('modal-overlay--hidden'));
+                    if (visibleOverlays.length > 0) closeModal(visibleOverlays[0]);
+                }
+            });
+
+            document.getElementById('btnHelp').addEventListener('click', () => openModal(modalHelpOverlay));
+            document.getElementById('btnCloseHelp').addEventListener('click', () => closeModal(modalHelpOverlay));
+
+            document.getElementById('btnSearch').addEventListener('click', () => {
+                openModal(modalSearchOverlay);
+                setTimeout(() => searchInput.focus(), 150);
+                updateSearchResults('');
+            });
+            document.getElementById('btnCloseSearch').addEventListener('click', () => closeModal(modalSearchOverlay));
+
+            searchInput.addEventListener('input', function() {
+                updateSearchResults(this.value.trim());
+            });
+
+            function updateSearchResults(query) {
+                searchResults.innerHTML = '';
+                if (!query) {
+                    searchResults.innerHTML = '<div class="search-no-result">🔍 请在上方输入关键词开始搜索</div>';
+                    return;
+                }
+                const q = query.toLowerCase();
+                const matched = allProducts.filter(p => p.code.toString().includes(q) || p.title.toLowerCase().includes(q));
+                if (matched.length === 0) {
+                    searchResults.innerHTML = '<div class="search-no-result">😔 未找到匹配的商品，请尝试其他关键词</div>';
+                    return;
+                }
+                matched.forEach(p => {
+                    const item = document.createElement('div');
+                    item.className = 'search-result-item';
+                    item.innerHTML = `
+                        <img class="search-result-item__img" src="${escapeHTML(p.imagePath)}" alt="${escapeHTML(p.title)}" onerror="this.style.display='none';">
+                        <div class="search-result-item__info">
+                            <div class="search-result-item__title">${escapeHTML(p.title)}</div>
+                            <div class="search-result-item__code">资源码：${escapeHTML(p.code.toString())}</div>
+                        </div>
+                        <div class="search-result-item__price">¥${escapeHTML(p.price)}</div>
+                    `;
+                    item.addEventListener('click', () => {
+                        closeModal(modalSearchOverlay);
+                        openDetailModal(p);
+                    });
+                    searchResults.appendChild(item);
+                });
+            }
+
+            document.getElementById('btnCloseDetail').addEventListener('click', () => closeModal(modalDetailOverlay));
+            document.getElementById('btnBuy').addEventListener('click', () => {
+                if (currentDetailProduct) openPurchaseModal(currentDetailProduct);
+            });
+
+            function openDetailModal(product) {
+                currentDetailProduct = product;
+                document.getElementById('detailTitle').textContent = product.title;
+                document.getElementById('detailCode').textContent = '资源码：' + product.code;
+                document.getElementById('detailDesc').textContent = product.description || '暂无详细信息';
+                document.getElementById('detailPrice').textContent = product.price;
+
+                const detailImg = document.getElementById('detailImg');
+                const detailImgFallback = document.getElementById('detailImgFallback');
+                const detailVideo = document.getElementById('detailVideo');
+                const detailVideoWrap = document.getElementById('detailVideoWrap');
+
+                detailImg.style.display = '';
+                detailImgFallback.style.display = 'none';
+                detailImg.src = product.imagePath;
+                detailImg.onerror = function() {
+                    tryAltImageExtensions(detailImg, product, () => {
+                        detailImg.style.display = 'none';
+                        detailImgFallback.style.display = 'flex';
+                    });
+                };
+
+                detailVideo.src = product.videoPath;
+                detailVideo.load();
+                detailVideoWrap.style.display = product.videoPath ? '' : 'none';
+                openModal(modalDetailOverlay);
+                detailVideo.pause();
+                detailVideo.currentTime = 0;
+            }
+
+            function tryAltImageExtensions(imgElement, product, fallbackFn) {
+                const basePath = product.imageBasePath;
+                const allExts = CONFIG.imageExtensions.filter(e => !imgElement.src.endsWith('.' + e));
+                let extIndex = 0;
+                function tryNext() {
+                    if (extIndex >= allExts.length) { if (fallbackFn) fallbackFn(); return; }
+                    const nextExt = allExts[extIndex];
+                    const testImg = new Image();
+                    testImg.onload = function() {
+                        imgElement.src = basePath + '.' + nextExt;
+                        imgElement.style.display = '';
+                        document.getElementById('detailImgFallback').style.display = 'none';
+                        product.imagePath = basePath + '.' + nextExt;
+                    };
+                    testImg.onerror = function() { extIndex++; tryNext(); };
+                    testImg.src = basePath + '.' + nextExt;
+                    extIndex++;
+                }
+                tryNext();
+            }
+
+            document.getElementById('btnClosePurchase').addEventListener('click', () => closeModal(modalPurchaseOverlay));
+            document.getElementById('btnConfirmPurchase').addEventListener('click', () => closeModal(modalPurchaseOverlay));
+
+            function openPurchaseModal(product) {
+                document.getElementById('purchaseName').textContent = product.title;
+                document.getElementById('purchaseCode').textContent = product.code;
+                document.getElementById('purchasePrice').textContent = '¥' + product.price;
+                document.getElementById('purchaseQQ').innerHTML = '购买请加QQ号：<strong>' + escapeHTML(CONFIG.qqNumber) + '</strong>';
+                openModal(modalPurchaseOverlay);
+            }
+
+            document.getElementById('btnCopyInfo').addEventListener('click', async function() {
+                if (!currentDetailProduct) return;
+                const p = currentDetailProduct;
+                const copyText = `商品名称：${p.title}\n资源码：${p.code}\n价格：¥${p.price}`;
+                const success = await copyToClipboard(copyText);
+                const btn = document.getElementById('btnCopyInfo');
+                if (success) {
+                    btn.textContent = '✅ 已复制！';
+                    btn.classList.add('btn-copy--copied');
+                    showToast('✅ 产品信息已复制到剪贴板');
+                    setTimeout(() => {
+                        btn.textContent = '📋 复制产品信息';
+                        btn.classList.remove('btn-copy--copied');
+                    }, 1800);
+                } else {
+                    showToast('⚠️ 复制失败，请手动复制');
+                }
+            });
+
+            async function discoverResourceCodes() {
+                const codes = [];
+                let consecutiveFails = 0;
+                let currentCode = CONFIG.resourceCodeStart;
+                const maxAttempts = 200;
+                while (consecutiveFails < CONFIG.maxConsecutiveFails && currentCode < CONFIG.resourceCodeStart + maxAttempts) {
+                    const batchPromises = [];
+                    for (let i = 0; i < CONFIG.batchSize; i++) {
+                        const code = currentCode + i;
+                        batchPromises.push(
+                            fetch(CONFIG.libraryPath + code + '/1.txt')
+                            .then(res => ({ code, ok: res.ok }))
+                            .catch(() => ({ code, ok: false }))
+                        );
+                    }
+                    const batchResults = await Promise.all(batchPromises);
+                    let batchSuccessCount = 0;
+                    for (const result of batchResults) {
+                        if (result.ok) {
+                            codes.push(result.code);
+                            discoveredCodes.add(result.code);
+                            batchSuccessCount++;
+                            consecutiveFails = 0;
+                        } else {
+                            consecutiveFails++;
+                            if (consecutiveFails >= CONFIG.maxConsecutiveFails) break;
+                        }
+                    }
+                    currentCode += CONFIG.batchSize;
+                }
+                return codes;
+            }
+
+            async function loadProductData(code) {
+                try {
+                    const basePath = CONFIG.libraryPath + code + '/';
+                    const [res1, res2, res3] = await Promise.all([
+                        fetch(basePath + '1.txt'),
+                        fetch(basePath + '2.txt'),
+                        fetch(basePath + '3.txt'),
+                    ]);
+                    if (!res1.ok || !res2.ok || !res3.ok) return null;
+                    const title = (await res1.text()).trim();
+                    const description = (await res2.text()).trim();
+                    const price = (await res3.text()).trim();
+                    const imageBasePath = basePath + '4';
+                    let imagePath = imageBasePath + '.jpg';
+                    const videoPath = basePath + '5.mp4';
+                    const detectedExt = await detectImageExtension(imageBasePath);
+                    if (detectedExt) imagePath = imageBasePath + '.' + detectedExt;
+                    return { code, title, description, price, imagePath, imageBasePath, videoPath };
+                } catch (err) {
+                    console.warn('加载商品数据失败 [code=' + code + ']:', err);
+                    return null;
+                }
+            }
+
+            async function detectImageExtension(basePathWithoutExt) {
+                for (const ext of CONFIG.imageExtensions) {
+                    try {
+                        const res = await fetch(basePathWithoutExt + '.' + ext, { method: 'HEAD' });
+                        if (res.ok && (res.headers.get('content-type') || '').startsWith('image/')) return ext;
+                    } catch (e) {}
+                }
+                for (const ext of ['jpg', 'png']) {
+                    try { const res = await fetch(basePathWithoutExt + '.' + ext); if (res.ok) return ext; } catch (e) {}
+                }
+                return null;
+            }
+
+            async function loadAllProducts() {
+                loadingIndicator.classList.remove('loading-indicator--hidden');
+                const codes = await discoverResourceCodes();
+                if (codes.length === 0) {
+                    loadingIndicator.innerHTML = '<span style="color:#8899aa;">未发现任何商品资源，请检查"库"文件夹是否存在。</span>';
+                    allDiscovered = true;
+                    updateNoMoreMessage();
+                    return;
+                }
+                const products = [];
+                const loadBatchSize = 6;
+                for (let i = 0; i < codes.length; i += loadBatchSize) {
+                    const batch = codes.slice(i, i + loadBatchSize);
+                    const batchResults = await Promise.all(batch.map(code => loadProductData(code)));
+                    for (const product of batchResults) if (product) products.push(product);
+                    loadingIndicator.innerHTML = `<div class="loading-spinner"></div><span>正在加载商品数据... (${Math.min(i+loadBatchSize, codes.length)}/${codes.length})</span>`;
+                }
+                allProducts = products;
+                allDiscovered = true;
+                loadingIndicator.classList.add('loading-indicator--hidden');
+                updateNoMoreMessage();
+                loadMoreProducts();
+            }
+
+            function createProductCard(product) {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.setAttribute('data-code', product.code);
+                card.innerHTML = `
+                    <div class="product-card__img-wrap">
+                        <img class="product-card__img" src="${escapeHTML(product.imagePath)}" alt="${escapeHTML(product.title)}" loading="lazy"
+                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                        <div class="product-card__img--placeholder" style="display:none;">📷</div>
+                    </div>
+                    <div class="product-card__body">
+                        <div class="product-card__title">${escapeHTML(product.title)}</div>
+                        <div class="product-card__code">${escapeHTML(product.code.toString())}</div>
+                        <div class="product-card__price">${escapeHTML(product.price)}</div>
+                    </div>
+                `;
+                card.addEventListener('click', () => openDetailModal(product));
+                return card;
+            }
+
+            function loadMoreProducts() {
+                if (isLoading || displayedCount >= allProducts.length) { updateNoMoreMessage(); return; }
+                isLoading = true;
+                const fragment = document.createDocumentFragment();
+                const endIndex = Math.min(displayedCount + CONFIG.itemsPerLoad, allProducts.length);
+                for (let i = displayedCount; i < endIndex; i++) fragment.appendChild(createProductCard(allProducts[i]));
+                productsGrid.appendChild(fragment);
+                displayedCount = endIndex;
+                isLoading = false;
+                updateNoMoreMessage();
+            }
+
+            function updateNoMoreMessage() {
+                if (!allDiscovered) { noMoreMsg.classList.add('no-more--hidden'); sentinel.style.display = ''; return; }
+                if (displayedCount >= allProducts.length && allProducts.length > 0) {
+                    noMoreMsg.classList.remove('no-more--hidden');
+                    sentinel.style.display = 'none';
+                } else if (allProducts.length === 0 && allDiscovered) {
+                    noMoreMsg.textContent = '暂无商品可展示';
+                    noMoreMsg.classList.remove('no-more--hidden');
+                    sentinel.style.display = 'none';
+                } else {
+                    noMoreMsg.classList.add('no-more--hidden');
+                    sentinel.style.display = '';
+                }
+            }
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !isLoading && displayedCount < allProducts.length) loadMoreProducts();
+                });
+            }, { rootMargin: '200px', threshold: 0 });
+            observer.observe(sentinel);
+
+            let scrollDebounce = null;
+            window.addEventListener('scroll', function() {
+                if (scrollDebounce) clearTimeout(scrollDebounce);
+                scrollDebounce = setTimeout(() => {
+                    if (isLoading || displayedCount >= allProducts.length) return;
+                    const rect = sentinel.getBoundingClientRect();
+                    if (rect.top < window.innerHeight + 350) loadMoreProducts();
+                }, 150);
+            }, { passive: true });
+
+            async function init() {
+                await loadAllProducts();
+                if (displayedCount === 0 && allProducts.length > 0) loadMoreProducts();
+                updateNoMoreMessage();
+                console.log(`✅ Apex资源展示已就绪 | 发现 ${allProducts.length} 个商品`);
+            }
+
+            init().catch(err => {
+                console.error('初始化失败:', err);
+                loadingIndicator.innerHTML = '<span style="color:#e63946;">⚠️ 初始化失败，请确保网页已部署在服务器上，且"库"文件夹存在。</span>';
+                loadingIndicator.classList.remove('loading-indicator--hidden');
+            });
+
+            window.ApexShop = {
+                getAllProducts: () => allProducts,
+                getDiscoveredCodes: () => [...discoveredCodes],
+                refreshProducts: async () => {
+                    allProducts = []; displayedCount = 0; allDiscovered = false; discoveredCodes.clear();
+                    productsGrid.innerHTML = '';
+                    noMoreMsg.classList.add('no-more--hidden');
+                    sentinel.style.display = '';
+                    loadingIndicator.classList.remove('loading-indicator--hidden');
+                    loadingIndicator.innerHTML = '<div class="loading-spinner"></div><span>正在探索资源...</span>';
+                    await loadAllProducts();
+                    if (displayedCount === 0 && allProducts.length > 0) loadMoreProducts();
+                    updateNoMoreMessage();
+                },
+                openSearch: () => { openModal(modalSearchOverlay); setTimeout(() => searchInput.focus(), 150); },
+                openHelp: () => openModal(modalHelpOverlay),
+                setQQNumber: (qq) => { CONFIG.qqNumber = qq; console.log('QQ号已更新为:', qq); },
+            };
+        })();
+    </script>
+</body>
+</html>
+```
