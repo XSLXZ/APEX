@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apex资源展示</title>
+    <!-- Firebase SDK（用于实时点击计数，可按需保留或移除） -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         :root {
             --bg-page: #f5f7fa;
@@ -50,7 +53,6 @@
             position: relative;
         }
 
-        /* 浅色网格线 */
         body::before {
             content: '';
             position: fixed;
@@ -67,8 +69,6 @@
             mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
             -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
         }
-
-        /* 浮动光点 */
         body::after {
             content: '';
             position: fixed;
@@ -103,26 +103,14 @@
             justify-content: space-between;
             padding: 16px 8px;
             margin-bottom: 10px;
-            position: relative;
             gap: 16px;
+            position: relative;
         }
-        .top-bar__side {
-            flex: 0 0 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            z-index: 2;
-        }
+        .top-bar__side { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 2; }
         .top-bar__side--left { min-width: 70px; }
         .top-bar__side--right { min-width: 70px; }
-        .top-bar__center {
-            flex: 1 1 auto;
-            text-align: center;
-            z-index: 1;
-        }
+        .top-bar__center { flex: 1 1 auto; text-align: center; z-index: 1; }
 
-        /* 小按钮样式 */
         .btn-icon {
             display: flex;
             flex-direction: column;
@@ -136,15 +124,9 @@
             color: var(--text-secondary);
             user-select: none;
             -webkit-tap-highlight-color: transparent;
-            position: relative;
-            overflow: hidden;
             box-shadow: 0 2px 10px rgba(0,0,0,0.03);
         }
-        .btn-icon--small {
-            width: 48px;
-            height: 48px;
-            padding: 6px;
-        }
+        .btn-icon--small { width: 48px; height: 48px; padding: 6px; }
         .btn-icon:hover {
             border-color: var(--blue-primary);
             box-shadow: var(--shadow-glow);
@@ -152,45 +134,20 @@
             transform: translateY(-2px);
             background: #f8fbff;
         }
-        .btn-icon:active {
-            transform: scale(0.94);
-            transition: 0.1s;
-        }
-        .btn-icon__symbol {
-            font-size: 22px;
-            font-weight: 700;
-            line-height: 1;
-            color: inherit;
-        }
-        .btn-icon__label {
-            font-size: 10px;
-            color: var(--text-secondary);
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-            margin-top: 1px;
-            transition: var(--transition-fast);
-        }
-        .btn-icon:hover .btn-icon__label {
-            color: var(--blue-primary);
-        }
-        .btn-icon--search {
-            border-color: rgba(42, 110, 245, 0.3);
-            background: #f0f6ff;
-        }
-        .btn-icon--search .btn-icon__symbol {
-            font-size: 20px;
-        }
+        .btn-icon:active { transform: scale(0.94); transition: 0.1s; }
+        .btn-icon__symbol { font-size: 22px; font-weight: 700; line-height: 1; }
+        .btn-icon__label { font-size: 10px; color: var(--text-secondary); letter-spacing: 0.5px; margin-top: 1px; }
+        .btn-icon:hover .btn-icon__label { color: var(--blue-primary); }
+        .btn-icon--search { border-color: rgba(42, 110, 245, 0.3); background: #f0f6ff; }
+        .btn-icon--search .btn-icon__symbol { font-size: 20px; }
 
-        /* 标题流萤效果（深蓝渐变） */
         .main-title {
             display: inline-block;
             font-size: clamp(2rem, 5vw, 3.8rem);
             font-weight: 900;
             letter-spacing: 0.06em;
             text-align: center;
-            background: linear-gradient(135deg,
-                    #1a5cd0 0%, #2a6ef5 25%, #4d8bff 50%,
-                    #1a5cd0 75%, #2a6ef5 100%);
+            background: linear-gradient(135deg, #1a5cd0 0%, #2a6ef5 25%, #4d8bff 50%, #1a5cd0 75%, #2a6ef5 100%);
             background-size: 300% 300%;
             -webkit-background-clip: text;
             background-clip: text;
@@ -224,7 +181,33 @@
             50% { opacity: 1; width: 75%; }
         }
 
-        /* 商品网格 */
+        /* 视图切换按钮 */
+        .view-toggle {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 12px;
+            gap: 10px;
+            align-items: center;
+        }
+        .view-toggle__btn {
+            background: #fff;
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 6px 18px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            color: var(--text-secondary);
+            letter-spacing: 0.03em;
+        }
+        .view-toggle__btn.active {
+            background: var(--blue-primary);
+            border-color: var(--blue-primary);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        /* 商品网格（多列） */
         .products-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -232,20 +215,54 @@
             padding: 8px 0;
             min-height: 300px;
         }
-        @media (max-width: 600px) {
-            .products-grid {
-                grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
-                gap: 12px;
-            }
+        /* 单列列表模式 */
+        .products-grid.list-view {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
-        @media (min-width: 1600px) {
-            .products-grid {
-                grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-                gap: 24px;
-            }
+        .products-grid.list-view .product-card {
+            flex-direction: row;
+            align-items: center;
+            padding: 12px;
+            gap: 16px;
+            border-radius: var(--radius-md);
+        }
+        .products-grid.list-view .product-card__img-wrap {
+            width: 120px;
+            height: 90px;
+            aspect-ratio: auto;
+            flex-shrink: 0;
+            border-radius: var(--radius-sm);
+        }
+        .products-grid.list-view .product-card__body {
+            flex: 1;
+            padding: 0;
+            gap: 6px;
+            flex-direction: row;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .products-grid.list-view .product-card__title {
+            -webkit-line-clamp: 1;
+            font-size: 1rem;
+            flex-basis: 100%;
+        }
+        .products-grid.list-view .product-card__code {
+            font-size: 0.95rem;
+            margin-right: auto;
+        }
+        .products-grid.list-view .product-card__price {
+            font-size: 1.1rem;
+            margin-top: 0;
         }
 
-        /* 商品卡片 */
+        @media (max-width: 600px) {
+            .products-grid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 12px; }
+            .products-grid.list-view .product-card__img-wrap { width: 80px; height: 60px; }
+            .products-grid.list-view .product-card { gap: 10px; }
+        }
+
         .product-card {
             background: #fff;
             border: 1px solid var(--border-subtle);
@@ -264,10 +281,7 @@
             box-shadow: 0 10px 30px rgba(42, 110, 245, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05);
             transform: translateY(-5px);
         }
-        .product-card:active {
-            transform: scale(0.97);
-            transition: 0.12s;
-        }
+        .product-card:active { transform: scale(0.97); transition: 0.12s; }
         .product-card__img-wrap {
             position: relative;
             width: 100%;
@@ -276,547 +290,225 @@
             background: #f0f2f5;
             flex-shrink: 0;
         }
-        .product-card__img-wrap::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border: 1px solid rgba(42, 110, 245, 0.05);
-            border-radius: inherit;
-            pointer-events: none;
-        }
-        .product-card__img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-            display: block;
-        }
-        .product-card:hover .product-card__img {
-            transform: scale(1.06);
-        }
+        .product-card__img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .product-card:hover .product-card__img { transform: scale(1.06); }
         .product-card__img--placeholder {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #eef1f5;
-            color: #8899aa;
-            font-size: 3rem;
-            width: 100%;
-            height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            background: #eef1f5; color: #8899aa; font-size: 3rem; width: 100%; height: 100%;
         }
-        .product-card__body {
-            padding: 14px 16px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            flex: 1 1 auto;
-        }
+        .product-card__body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1 1 auto; }
         .product-card__title {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            line-height: 1.3;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            letter-spacing: 0.02em;
+            font-size: 0.95rem; font-weight: 600; color: var(--text-primary); line-height: 1.3;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         }
         .product-card__code {
-            font-family: var(--font-mono);
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: 0.05em;
-            background: var(--blue-primary);
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            align-self: flex-start;
-            transition: var(--transition-fast);
+            font-family: var(--font-mono); font-size: 1.15rem; font-weight: 700; color: #fff;
+            background: var(--blue-primary); display: inline-block; padding: 4px 12px;
+            border-radius: 20px; align-self: flex-start; transition: var(--transition-fast);
         }
-        .product-card:hover .product-card__code {
-            background: #1e5cd6;
-            box-shadow: 0 0 12px rgba(42, 110, 245, 0.3);
-        }
-        .product-card__price {
-            font-size: 1.35rem;
-            font-weight: 800;
-            color: var(--accent-red);
-            letter-spacing: 0.03em;
-            margin-top: auto;
-        }
-        .product-card__price::before {
-            content: '¥ ';
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
+        .product-card:hover .product-card__code { background: #1e5cd6; box-shadow: 0 0 12px rgba(42, 110, 245, 0.3); }
+        .product-card__price { font-size: 1.35rem; font-weight: 800; color: var(--accent-red); margin-top: auto; }
 
         .loading-indicator {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-            gap: 12px;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            letter-spacing: 0.03em;
-            grid-column: 1 / -1;
+            display: flex; align-items: center; justify-content: center; padding: 40px 20px;
+            gap: 12px; color: var(--text-secondary); font-size: 0.95rem; grid-column: 1 / -1;
         }
         .loading-spinner {
-            width: 36px;
-            height: 36px;
-            border: 3px solid rgba(42, 110, 245, 0.2);
-            border-top-color: var(--blue-primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            width: 36px; height: 36px; border: 3px solid rgba(42, 110, 245, 0.2);
+            border-top-color: var(--blue-primary); border-radius: 50%; animation: spin 0.8s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading-indicator--hidden { display: none; }
-        .no-more {
-            text-align: center;
-            padding: 30px 20px;
-            color: #8899aa;
-            font-size: 0.9rem;
-            letter-spacing: 0.04em;
-            grid-column: 1 / -1;
-        }
+        .no-more { text-align: center; padding: 30px 20px; color: #8899aa; font-size: 0.9rem; grid-column: 1 / -1; }
         .no-more--hidden { display: none; }
-        .sentinel {
-            height: 1px;
-            width: 100%;
-            grid-column: 1 / -1;
-            pointer-events: none;
-        }
+        .sentinel { height: 1px; width: 100%; grid-column: 1 / -1; pointer-events: none; }
 
         /* 弹窗通用 */
         .modal-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 100;
-            background: rgba(0, 0, 0, 0.35);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            animation: fadeIn 0.25s ease-out;
-            overflow-y: auto;
+            position: fixed; inset: 0; z-index: 100;
+            background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px; animation: fadeIn 0.25s ease-out; overflow-y: auto;
         }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .modal-overlay--hidden { display: none; }
         .modal-panel {
-            background: #ffffff;
-            background-image: radial-gradient(ellipse at 30% 20%, rgba(42, 110, 245, 0.04) 0%, transparent 60%);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 28px 30px;
-            max-width: 700px;
-            width: 100%;
-            max-height: 85vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1), 0 0 30px rgba(42, 110, 245, 0.08);
-            position: relative;
-            animation: slideUp 0.3s ease-out;
-        }
-        @keyframes slideUp {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            background: #fff; border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg); padding: 28px 30px;
+            max-width: 700px; width: 100%; max-height: 85vh;
+            overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            position: relative; animation: slideUp 0.3s ease-out;
+            display: flex; flex-direction: column;
         }
         .modal-panel--wide { max-width: 900px; }
         .modal-panel--small { max-width: 500px; }
         .modal-close {
-            position: absolute;
-            top: 14px;
-            right: 18px;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #f0f2f5;
-            border: 1px solid #ddd;
-            color: #555;
-            font-size: 1.2rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition-fast);
-            z-index: 5;
-            -webkit-tap-highlight-color: transparent;
+            position: absolute; top: 14px; right: 18px; width: 36px; height: 36px;
+            border-radius: 50%; background: #f0f2f5; border: 1px solid #ddd;
+            color: #555; font-size: 1.2rem; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; transition: var(--transition-fast); z-index: 5;
         }
-        .modal-close:hover {
-            background: #ffebee;
-            border-color: #e63946;
-            color: #e63946;
+        .modal-close:hover { background: #ffebee; border-color: #e63946; color: #e63946; }
+
+        /* 警告弹窗 */
+        .warning-content { text-align: center; padding: 20px 10px; }
+        .warning-content h2 { color: var(--accent-red); margin-bottom: 16px; }
+        .warning-content p { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; }
+        .btn-warning-confirm {
+            margin-top: 24px; padding: 12px 36px; font-size: 1rem; font-weight: 700;
+            background: var(--blue-primary); color: #fff; border: none; border-radius: 30px;
+            cursor: pointer; transition: var(--transition-smooth);
         }
+        .btn-warning-confirm:hover { background: #1e5cd6; }
 
         /* 搜索弹窗 */
-        .search-input-wrap { position: relative; margin-bottom: 20px; }
+        .search-input-wrap { margin-bottom: 20px; }
         .search-input {
-            width: 100%;
-            padding: 16px 20px;
-            font-size: 1.1rem;
-            background: #f5f7fa;
-            border: 2px solid var(--border-subtle);
-            border-radius: 30px;
-            color: var(--text-primary);
-            outline: none;
-            transition: var(--transition-smooth);
-            letter-spacing: 0.03em;
-            font-family: inherit;
+            width: 100%; padding: 16px 20px; font-size: 1.1rem;
+            background: #f5f7fa; border: 2px solid var(--border-subtle);
+            border-radius: 30px; color: var(--text-primary); outline: none;
+            transition: var(--transition-smooth); letter-spacing: 0.03em;
         }
-        .search-input::placeholder { color: #8899aa; }
-        .search-input:focus {
-            border-color: var(--blue-primary);
-            box-shadow: 0 0 20px rgba(42, 110, 245, 0.15);
-            background: #fff;
-        }
-        .search-results {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-height: 55vh;
-            overflow-y: auto;
-        }
+        .search-input:focus { border-color: var(--blue-primary); box-shadow: 0 0 20px rgba(42, 110, 245, 0.15); background: #fff; }
+        .search-results { display: flex; flex-direction: column; gap: 10px; max-height: 55vh; overflow-y: auto; }
         .search-result-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 16px;
-            background: #f8fafc;
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            transition: var(--transition-fast);
+            display: flex; align-items: center; gap: 14px; padding: 12px 16px;
+            background: #f8fafc; border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md); cursor: pointer; transition: var(--transition-fast);
         }
-        .search-result-item:hover {
-            border-color: var(--blue-primary);
-            background: #eef3ff;
-            box-shadow: 0 0 12px rgba(42, 110, 245, 0.1);
-        }
-        .search-result-item__img {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 6px;
-            flex-shrink: 0;
-            background: #eee;
-        }
-        .search-result-item__info { flex: 1; min-width: 0; }
-        .search-result-item__title {
-            font-weight: 600;
-            color: var(--text-primary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .search-result-item__code {
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
-            color: var(--blue-primary);
-        }
-        .search-result-item__price {
-            color: var(--accent-red);
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-        .search-no-result {
-            text-align: center;
-            padding: 30px;
-            color: #8899aa;
-            font-size: 1rem;
-        }
+        .search-result-item:hover { border-color: var(--blue-primary); background: #eef3ff; }
+        .search-result-item__img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; background: #eee; }
+        .search-result-item__info { flex: 1; }
+        .search-result-item__title { font-weight: 600; color: var(--text-primary); }
+        .search-result-item__code { font-family: var(--font-mono); font-size: 0.85rem; color: var(--blue-primary); }
+        .search-result-item__price { color: var(--accent-red); font-weight: 700; }
 
         /* 说明弹窗 */
         .info-section { margin-bottom: 22px; }
         .info-section__title {
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-            letter-spacing: 0.03em;
-            border-left: 3px solid var(--blue-primary);
-            padding-left: 12px;
+            font-size: 1.15rem; font-weight: 700; color: var(--text-primary);
+            margin-bottom: 8px; border-left: 3px solid var(--blue-primary); padding-left: 12px;
         }
         .info-section__content {
-            background: #f5f7fa;
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-sm);
-            padding: 14px 16px;
-            color: var(--text-primary);
-            font-size: 0.9rem;
-            line-height: 1.7;
-            min-height: 60px;
-            white-space: pre-wrap;
-            word-break: break-word;
+            background: #f5f7fa; border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm); padding: 14px 16px;
+            color: var(--text-primary); font-size: 0.9rem; line-height: 1.7;
+            white-space: pre-wrap; word-break: break-word;
         }
 
         /* 详情弹窗 */
-        .detail-layout {
-            display: flex;
-            gap: 24px;
-            flex-wrap: wrap;
-        }
-        .detail-media {
-            flex: 1 1 320px;
-            min-width: 280px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
+        .detail-layout { display: flex; gap: 24px; flex: 1; min-height: 0; }
+        .detail-media { flex: 1 1 320px; min-width: 280px; display: flex; flex-direction: column; gap: 16px; }
         .detail-media__image {
-            width: 100%;
-            border-radius: var(--radius-md);
-            object-fit: cover;
-            max-height: 350px;
-            background: #f0f2f5;
-            border: 1px solid var(--border-subtle);
+            width: 100%; border-radius: var(--radius-md); object-fit: cover;
+            max-height: 350px; background: #f0f2f5; border: 1px solid var(--border-subtle);
         }
         .detail-media__video-wrap {
-            width: 100%;
-            border-radius: var(--radius-md);
-            overflow: hidden;
-            border: 1px solid var(--border-subtle);
-            background: #000;
+            width: 100%; border-radius: var(--radius-md); overflow: hidden;
+            border: 1px solid var(--border-subtle); background: #000;
         }
-        .detail-media__video {
-            width: 100%;
-            display: block;
-            border-radius: var(--radius-md);
-            outline: none;
-        }
+        .detail-media__video { width: 100%; display: block; border-radius: var(--radius-md); }
         .detail-info {
-            flex: 1 1 280px;
-            min-width: 250px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
+            flex: 1 1 280px; min-width: 250px; display: flex; flex-direction: column;
+            gap: 14px; position: relative; padding-bottom: 70px; /* 为固定底部留空间 */
         }
-        .detail-info__title {
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: var(--text-primary);
-            letter-spacing: 0.03em;
-            line-height: 1.2;
-        }
+        .detail-info__title { font-size: 1.6rem; font-weight: 800; color: var(--text-primary); }
         .detail-info__code {
-            font-family: var(--font-mono);
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #fff;
-            background: var(--blue-primary);
-            display: inline-block;
-            padding: 6px 18px;
-            border-radius: 22px;
-            letter-spacing: 0.06em;
-            align-self: flex-start;
+            font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700; color: #fff;
+            background: var(--blue-primary); display: inline-block; padding: 6px 18px;
+            border-radius: 22px; align-self: flex-start;
         }
         .detail-info__desc {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            line-height: 1.7;
-            white-space: pre-wrap;
-            word-break: break-word;
-            flex: 1 1 auto;
+            font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7;
+            white-space: pre-wrap; word-break: break-word; flex: 1 1 auto;
         }
         .detail-info__bottom {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            flex-wrap: wrap;
-            margin-top: auto;
-            padding-top: 12px;
-            border-top: 1px solid var(--border-subtle);
+            position: sticky; bottom: 0; left: 0; right: 0; background: #fff;
+            padding: 14px 0 0; margin-top: auto; border-top: 1px solid var(--border-subtle);
+            display: flex; align-items: center; justify-content: space-between; gap: 16px;
+            z-index: 2; box-shadow: 0 -4px 12px rgba(0,0,0,0.02);
         }
-        .detail-info__price {
-            font-size: 2rem;
-            font-weight: 900;
-            color: var(--accent-red);
-            letter-spacing: 0.04em;
-        }
-        .detail-info__price::before {
-            content: '¥';
-            font-size: 1.2rem;
-            margin-right: 2px;
-        }
-        .btn-buy {
-            padding: 14px 32px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            background: var(--accent-red);
-            color: #fff;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: var(--transition-smooth);
+        .detail-info__price { font-size: 2rem; font-weight: 900; color: var(--accent-red); }
+        .btn-get {
+            padding: 14px 32px; font-size: 1.1rem; font-weight: 700;
+            background: var(--accent-red); color: #fff; border: none;
+            border-radius: 30px; cursor: pointer; transition: var(--transition-smooth);
             box-shadow: 0 6px 20px rgba(230, 57, 70, 0.25);
-            -webkit-tap-highlight-color: transparent;
             white-space: nowrap;
         }
-        .btn-buy:hover {
-            background: #d12c3a;
-            box-shadow: 0 8px 25px rgba(230, 57, 70, 0.35);
-            transform: translateY(-2px);
-        }
-        .btn-buy:active {
-            transform: scale(0.94);
-            transition: 0.1s;
-        }
+        .btn-get:hover { background: #d12c3a; box-shadow: 0 8px 25px rgba(230, 57, 70, 0.35); transform: translateY(-2px); }
+        .btn-get:active { transform: scale(0.94); }
 
-        /* 购买确认弹窗 */
-        .purchase-info {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .purchase-info__row {
-            display: flex;
-            gap: 8px;
-            font-size: 0.95rem;
-            flex-wrap: wrap;
-        }
-        .purchase-info__label { color: var(--text-secondary); flex-shrink: 0; }
+        /* 获取确认弹窗 */
+        .purchase-info { display: flex; flex-direction: column; gap: 12px; }
+        .purchase-info__row { display: flex; gap: 8px; font-size: 0.95rem; flex-wrap: wrap; }
+        .purchase-info__label { color: var(--text-secondary); }
         .purchase-info__value { color: var(--text-primary); font-weight: 600; }
         .purchase-highlight {
-            background: #fff8e1;
-            border: 1px solid #f0d060;
-            border-radius: var(--radius-md);
-            padding: 16px 18px;
-            text-align: center;
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: #b45309;
-            letter-spacing: 0.03em;
-            margin: 6px 0;
+            background: #fff8e1; border: 1px solid #f0d060; border-radius: var(--radius-md);
+            padding: 16px 18px; text-align: center; font-size: 1.05rem; font-weight: 700;
+            color: #b45309; margin: 6px 0;
         }
         .purchase-notice {
-            background: #f5f7fa;
-            border-radius: var(--radius-sm);
-            padding: 14px 16px;
-            font-size: 0.85rem;
-            color: #4a5a6a;
-            line-height: 1.7;
-            white-space: pre-wrap;
+            background: #f5f7fa; border-radius: var(--radius-sm); padding: 14px 16px;
+            font-size: 0.85rem; color: #4a5a6a; line-height: 1.7; white-space: pre-wrap;
+            text-align: left; /* 顶格显示 */
         }
-        .btn-row {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-top: 8px;
+        .purchase-notice strong, .purchase-notice .highlight-time {
+            color: var(--accent-red); font-weight: 700;
         }
+        .btn-row { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
         .btn-copy {
-            padding: 12px 24px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            letter-spacing: 0.03em;
-            background: #e8f0fe;
-            color: var(--blue-primary);
-            border: 1px solid rgba(42, 110, 245, 0.4);
-            border-radius: 26px;
-            cursor: pointer;
-            transition: var(--transition-smooth);
-            -webkit-tap-highlight-color: transparent;
-            white-space: nowrap;
+            padding: 12px 24px; font-size: 0.95rem; font-weight: 600;
+            background: #e8f0fe; color: var(--blue-primary); border: 1px solid rgba(42, 110, 245, 0.4);
+            border-radius: 26px; cursor: pointer; transition: var(--transition-smooth); white-space: nowrap;
         }
-        .btn-copy:hover {
-            background: #d0e2ff;
-            border-color: var(--blue-primary);
-            box-shadow: 0 0 14px rgba(42, 110, 245, 0.2);
-        }
-        .btn-copy--copied {
-            background: #e6f7ec !important;
-            border-color: #38a169 !important;
-            color: #2d6a4f !important;
-            transition: 0.2s;
-        }
+        .btn-copy:hover { background: #d0e2ff; border-color: var(--blue-primary); }
+        .btn-copy--copied { background: #e6f7ec !important; border-color: #38a169 !important; color: #2d6a4f !important; }
         .btn-confirm {
-            padding: 12px 28px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            letter-spacing: 0.03em;
-            background: #f0f2f5;
-            color: #333;
-            border: 1px solid #ccc;
-            border-radius: 26px;
-            cursor: pointer;
-            transition: var(--transition-smooth);
-            -webkit-tap-highlight-color: transparent;
+            padding: 12px 28px; font-size: 0.95rem; font-weight: 600;
+            background: #f0f2f5; color: #333; border: 1px solid #ccc;
+            border-radius: 26px; cursor: pointer; transition: var(--transition-smooth);
         }
-        .btn-confirm:hover {
-            background: #e0e3e7;
-            border-color: #999;
-        }
-        .copy-hint {
-            font-size: 0.8rem;
-            color: #8899aa;
-            text-align: center;
-            margin-top: 2px;
-        }
+        .btn-confirm:hover { background: #e0e3e7; }
 
         .toast {
-            position: fixed;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 300;
-            background: #fff;
-            border: 1px solid var(--blue-primary);
-            color: var(--text-primary);
-            padding: 12px 24px;
-            border-radius: 28px;
-            font-weight: 600;
-            letter-spacing: 0.03em;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
+            z-index: 300; background: #fff; border: 1px solid var(--blue-primary);
+            color: var(--text-primary); padding: 12px 24px; border-radius: 28px;
+            font-weight: 600; box-shadow: 0 8px 30px rgba(0,0,0,0.08);
             animation: toastIn 0.35s ease-out, toastOut 0.35s ease-in 1.8s forwards;
-            pointer-events: none;
-            font-size: 0.9rem;
+            pointer-events: none; font-size: 0.9rem;
         }
-        @keyframes toastIn {
-            from { opacity: 0; transform: translateX(-50%) translateY(30px); }
-            to { opacity: 1; transform: translateX(-50%) translateY(0); }
-        }
-        @keyframes toastOut {
-            from { opacity: 1; transform: translateX(-50%) translateY(0); }
-            to { opacity: 0; transform: translateX(-50%) translateY(20px); }
-        }
-
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(42, 110, 245, 0.2); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(42, 110, 245, 0.4); }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(30px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        @keyframes toastOut { from { opacity: 1; transform: translateX(-50%) translateY(0); } to { opacity: 0; transform: translateX(-50%) translateY(20px); } }
 
         @media (max-width: 768px) {
             .top-bar { gap: 8px; padding: 10px 0; }
-            .btn-icon--small { width: 38px; height: 38px; padding: 4px; }
-            .btn-icon__symbol { font-size: 17px; }
-            .btn-icon__label { font-size: 8px; }
-            .main-title { font-size: clamp(1.4rem, 6vw, 2.4rem); letter-spacing: 0.03em; }
-            .modal-panel { padding: 18px 14px; max-width: 95vw; border-radius: var(--radius-md); }
-            .detail-layout { flex-direction: column; gap: 14px; }
+            .btn-icon--small { width: 38px; height: 38px; }
+            .main-title { font-size: clamp(1.4rem, 6vw, 2.4rem); }
+            .modal-panel { padding: 18px 14px; }
+            .detail-layout { flex-direction: column; }
             .detail-media__image { max-height: 240px; }
             .detail-info__title { font-size: 1.3rem; }
-            .detail-info__code { font-size: 1.2rem; padding: 4px 14px; }
+            .detail-info__code { font-size: 1.2rem; }
             .detail-info__price { font-size: 1.5rem; }
-            .btn-buy { padding: 12px 24px; font-size: 1rem; }
-            .products-grid { gap: 12px; }
-            .product-card__body { padding: 10px 12px 12px; gap: 5px; }
-            .product-card__code { font-size: 1rem; padding: 3px 10px; }
-            .product-card__price { font-size: 1.1rem; }
-        }
-        @media (max-width: 400px) {
-            .products-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
-            .product-card__img-wrap { aspect-ratio: 1/1; }
-            .product-card__title { font-size: 0.8rem; }
-            .product-card__code { font-size: 0.85rem; padding: 2px 8px; }
-            .product-card__price { font-size: 0.95rem; }
-            .top-bar__side--left, .top-bar__side--right { min-width: 44px; }
+            .btn-get { padding: 12px 24px; font-size: 1rem; }
+            .products-grid.list-view .product-card__img-wrap { width: 80px; height: 60px; }
         }
     </style>
 </head>
 <body>
+    <!-- 18+ 警告弹窗（初始显示） -->
+    <div class="modal-overlay" id="warningOverlay">
+        <div class="modal-panel modal-panel--small">
+            <div class="warning-content">
+                <h2>⚠️ 年龄警告</h2>
+                <p>本网站仅对年满18周岁的成年人开放。<br>请确认您已满18周岁，否则请立即关闭页面。</p>
+                <button class="btn-warning-confirm" id="btnWarningConfirm">我知道了</button>
+            </div>
+        </div>
+    </div>
 
     <div class="main-container" id="mainContainer">
         <div class="top-bar">
@@ -830,11 +522,17 @@
                 <h1 class="main-title">Apex资源展示</h1>
             </div>
             <div class="top-bar__side top-bar__side--right">
-                <button class="btn-icon btn-icon--small btn-icon--search" id="btnSearch" title="搜索商品" aria-label="搜索商品">
+                <button class="btn-icon btn-icon--small btn-icon--search" id="btnSearch" title="搜索资源" aria-label="搜索资源">
                     <span class="btn-icon__symbol">🔍</span>
                 </button>
                 <span class="btn-icon__label">搜索</span>
             </div>
+        </div>
+
+        <!-- 视图切换按钮 -->
+        <div class="view-toggle">
+            <button class="view-toggle__btn active" id="btnViewGrid">📦 多列视图</button>
+            <button class="view-toggle__btn" id="btnViewList">📋 列表视图</button>
         </div>
 
         <div class="products-grid" id="productsGrid"></div>
@@ -843,53 +541,47 @@
             <span>正在探索资源...</span>
         </div>
         <div class="sentinel" id="sentinel"></div>
-        <div class="no-more no-more--hidden" id="noMoreMsg">— 已展示全部商品 —</div>
+        <div class="no-more no-more--hidden" id="noMoreMsg">— 已展示全部资源 —</div>
     </div>
 
     <!-- 说明弹窗（只读） -->
     <div class="modal-overlay modal-overlay--hidden" id="modalHelpOverlay">
-        <div class="modal-panel modal-panel--wide" id="modalHelpPanel">
+        <div class="modal-panel modal-panel--wide">
             <button class="modal-close" id="btnCloseHelp" aria-label="关闭">✕</button>
             <div class="info-section">
                 <div class="info-section__title">📢 最近更新公告</div>
-                <div class="info-section__content" id="helpAnnouncement">
-                    【更新公告占位】请在此处编写最近的更新公告内容...
-                </div>
+                <div class="info-section__content">【更新公告占位】请在此处编写最近的更新公告内容...</div>
             </div>
             <div class="info-section">
                 <div class="info-section__title">📖 网站用法说明</div>
-                <div class="info-section__content" id="helpUsage">
-                    【用法说明占位】请在此处编写网站的使用说明...
-                </div>
+                <div class="info-section__content">【用法说明占位】请在此处编写网站的使用说明...</div>
             </div>
         </div>
     </div>
 
     <!-- 搜索弹窗 -->
     <div class="modal-overlay modal-overlay--hidden" id="modalSearchOverlay">
-        <div class="modal-panel" id="modalSearchPanel">
+        <div class="modal-panel">
             <button class="modal-close" id="btnCloseSearch" aria-label="关闭">✕</button>
             <div class="search-input-wrap">
                 <input type="text" class="search-input" id="searchInput" placeholder="输入资源码或名称关键词进行搜索..." autocomplete="off">
             </div>
             <div class="search-results" id="searchResults">
-                <div class="search-no-result">🔍 请在上方输入关键词开始搜索</div>
+                <div class="search-no-result" style="text-align:center;padding:30px;color:#8899aa;">🔍 请在上方输入关键词开始搜索</div>
             </div>
         </div>
     </div>
 
-    <!-- 商品详情弹窗 -->
+    <!-- 资源详情弹窗 -->
     <div class="modal-overlay modal-overlay--hidden" id="modalDetailOverlay">
         <div class="modal-panel modal-panel--wide" id="modalDetailPanel">
             <button class="modal-close" id="btnCloseDetail" aria-label="关闭">✕</button>
             <div class="detail-layout">
                 <div class="detail-media">
-                    <img class="detail-media__image" id="detailImg" src="" alt="商品预览图" onerror="this.style.display='none'; document.getElementById('detailImgFallback').style.display='flex';">
+                    <img class="detail-media__image" id="detailImg" src="" alt="资源预览图" onerror="this.style.display='none'; document.getElementById('detailImgFallback').style.display='flex';">
                     <div class="product-card__img--placeholder detail-media__image" id="detailImgFallback" style="display:none; aspect-ratio:4/3; border-radius:10px; font-size:2rem;">📷 暂无图片</div>
                     <div class="detail-media__video-wrap" id="detailVideoWrap">
-                        <video class="detail-media__video" id="detailVideo" src="" controls preload="metadata" playsinline>
-                            您的浏览器不支持视频播放
-                        </video>
+                        <video class="detail-media__video" id="detailVideo" src="" controls preload="metadata" playsinline>您的浏览器不支持视频播放</video>
                     </div>
                 </div>
                 <div class="detail-info">
@@ -898,20 +590,20 @@
                     <div class="detail-info__desc" id="detailDesc"></div>
                     <div class="detail-info__bottom">
                         <span class="detail-info__price" id="detailPrice"></span>
-                        <button class="btn-buy" id="btnBuy">购买</button>
+                        <button class="btn-get" id="btnGet">获取</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 购买确认弹窗 -->
+    <!-- 获取确认弹窗 -->
     <div class="modal-overlay modal-overlay--hidden" id="modalPurchaseOverlay">
-        <div class="modal-panel modal-panel--small" id="modalPurchasePanel">
+        <div class="modal-panel modal-panel--small">
             <button class="modal-close" id="btnClosePurchase" aria-label="关闭">✕</button>
             <div class="purchase-info">
                 <div class="purchase-info__row">
-                    <span class="purchase-info__label">商品名称：</span>
+                    <span class="purchase-info__label">资源名称：</span>
                     <span class="purchase-info__value" id="purchaseName"></span>
                 </div>
                 <div class="purchase-info__row">
@@ -922,25 +614,44 @@
                     <span class="purchase-info__label">价格：</span>
                     <span class="purchase-info__value" id="purchasePrice" style="color:var(--accent-red); font-weight:700;"></span>
                 </div>
-                <div class="purchase-highlight" id="purchaseQQ">
-                    购买请加QQ号：<strong>xxx</strong>
+                <div class="purchase-highlight">
+                    获取请加QQ号：<strong>3021581403</strong>
                 </div>
                 <div class="purchase-notice">
-                    资源服务时间：工作日 20:00-23:00
-                    若购买资源请注明来源，以及需要购买资源对应的资源码。
-                    在服务时间内，我会向您发送付款码，请扫码支付截图。
-                    若不在服务时间内，请耐心等待。谢谢！
+<span class="highlight-time"><strong>资源服务时间：工作日 20:00-23:00</strong></span>
+若获取资源请注明来源，以及需要获取资源对应的资源码。
+在服务时间内，我会向您发送付款码，请扫码支付截图。
+若不在服务时间内，请耐心等待。谢谢！
                 </div>
                 <div class="btn-row">
-                    <button class="btn-copy" id="btnCopyInfo">📋 复制产品信息</button>
+                    <button class="btn-copy" id="btnCopyInfo">📋 复制资源信息</button>
                     <button class="btn-confirm" id="btnConfirmPurchase">确定</button>
                 </div>
-                <div class="copy-hint">复制产品信息后，发送到上方QQ号以完成购买</div>
+                <div class="copy-hint" style="font-size:0.8rem;color:#8899aa;text-align:center;">复制资源信息后，发送到上方QQ号以完成获取</div>
             </div>
         </div>
     </div>
 
     <script>
+        // ==================== Firebase 实时计数（可选） ====================
+        const firebaseConfig = {
+            // 请替换为您自己的Firebase配置
+            apiKey: "AIzaSy...",
+            authDomain: "xxx.firebaseapp.com",
+            databaseURL: "https://xxx.firebaseio.com",
+            projectId: "xxx",
+            storageBucket: "xxx.appspot.com",
+            messagingSenderId: "000",
+            appId: "1:000:web:xxx"
+        };
+        try {
+            firebase.initializeApp(firebaseConfig);
+            window.db = firebase.database();
+            window.clicksRef = window.db.ref('totalClicks');
+        } catch (e) {
+            console.warn('Firebase未配置或加载失败，实时计数不可用');
+        }
+
         (function() {
             const CONFIG = {
                 libraryPath: './库/',
@@ -948,7 +659,7 @@
                 maxConsecutiveFails: 6,
                 batchSize: 8,
                 itemsPerLoad: 10,
-                qqNumber: 'xxx',
+                qqNumber: '3021581403',
                 imageExtensions: ['jpg', 'png', 'jpeg', 'webp'],
             };
 
@@ -968,9 +679,38 @@
             const modalSearchOverlay = document.getElementById('modalSearchOverlay');
             const modalDetailOverlay = document.getElementById('modalDetailOverlay');
             const modalPurchaseOverlay = document.getElementById('modalPurchaseOverlay');
+            const warningOverlay = document.getElementById('warningOverlay');
 
             const searchInput = document.getElementById('searchInput');
             const searchResults = document.getElementById('searchResults');
+
+            // 视图切换
+            const btnViewGrid = document.getElementById('btnViewGrid');
+            const btnViewList = document.getElementById('btnViewList');
+            btnViewGrid.addEventListener('click', () => {
+                productsGrid.classList.remove('list-view');
+                btnViewGrid.classList.add('active');
+                btnViewList.classList.remove('active');
+            });
+            btnViewList.addEventListener('click', () => {
+                productsGrid.classList.add('list-view');
+                btnViewList.classList.add('active');
+                btnViewGrid.classList.remove('active');
+            });
+
+            // 18+ 警告确认
+            document.getElementById('btnWarningConfirm').addEventListener('click', () => {
+                warningOverlay.classList.add('modal-overlay--hidden');
+                document.body.style.overflow = '';
+                // 自动弹出说明弹窗
+                setTimeout(() => openModal(modalHelpOverlay), 300);
+            });
+            // 禁止点击遮罩关闭警告弹窗
+            warningOverlay.addEventListener('click', (e) => {
+                if (e.target === warningOverlay) {
+                    // 不做任何事，只能通过按钮关闭
+                }
+            });
 
             function showToast(message, duration = 2200) {
                 const existing = document.querySelector('.toast');
@@ -991,7 +731,6 @@
                         textarea.value = text;
                         textarea.style.position = 'fixed';
                         textarea.style.opacity = '0';
-                        textarea.style.left = '-9999px';
                         document.body.appendChild(textarea);
                         textarea.select();
                         document.execCommand('copy');
@@ -999,7 +738,6 @@
                     }
                     return true;
                 } catch (err) {
-                    console.error('复制失败:', err);
                     return false;
                 }
             }
@@ -1010,13 +748,17 @@
                 return div.innerHTML;
             }
 
+            function formatPrice(price) {
+                return `${price} r`;
+            }
+
             function openModal(overlay) {
                 overlay.classList.remove('modal-overlay--hidden');
-                document.body.style.overflow = 'hidden';
+                if (overlay !== warningOverlay) document.body.style.overflow = 'hidden';
             }
             function closeModal(overlay) {
                 overlay.classList.add('modal-overlay--hidden');
-                const allOverlays = [modalHelpOverlay, modalSearchOverlay, modalDetailOverlay, modalPurchaseOverlay];
+                const allOverlays = [modalHelpOverlay, modalSearchOverlay, modalDetailOverlay, modalPurchaseOverlay, warningOverlay];
                 if (allOverlays.every(o => o.classList.contains('modal-overlay--hidden'))) {
                     document.body.style.overflow = '';
                 }
@@ -1053,13 +795,13 @@
             function updateSearchResults(query) {
                 searchResults.innerHTML = '';
                 if (!query) {
-                    searchResults.innerHTML = '<div class="search-no-result">🔍 请在上方输入关键词开始搜索</div>';
+                    searchResults.innerHTML = '<div style="text-align:center;padding:30px;color:#8899aa;">🔍 请在上方输入关键词开始搜索</div>';
                     return;
                 }
                 const q = query.toLowerCase();
                 const matched = allProducts.filter(p => p.code.toString().includes(q) || p.title.toLowerCase().includes(q));
                 if (matched.length === 0) {
-                    searchResults.innerHTML = '<div class="search-no-result">😔 未找到匹配的商品，请尝试其他关键词</div>';
+                    searchResults.innerHTML = '<div style="text-align:center;padding:30px;color:#8899aa;">😔 未找到匹配的资源</div>';
                     return;
                 }
                 matched.forEach(p => {
@@ -1071,7 +813,7 @@
                             <div class="search-result-item__title">${escapeHTML(p.title)}</div>
                             <div class="search-result-item__code">资源码：${escapeHTML(p.code.toString())}</div>
                         </div>
-                        <div class="search-result-item__price">¥${escapeHTML(p.price)}</div>
+                        <div class="search-result-item__price">${formatPrice(p.price)}</div>
                     `;
                     item.addEventListener('click', () => {
                         closeModal(modalSearchOverlay);
@@ -1082,8 +824,14 @@
             }
 
             document.getElementById('btnCloseDetail').addEventListener('click', () => closeModal(modalDetailOverlay));
-            document.getElementById('btnBuy').addEventListener('click', () => {
-                if (currentDetailProduct) openPurchaseModal(currentDetailProduct);
+            document.getElementById('btnGet').addEventListener('click', () => {
+                if (currentDetailProduct) {
+                    openPurchaseModal(currentDetailProduct);
+                    // 实时计数增加
+                    if (window.clicksRef) {
+                        window.clicksRef.transaction((count) => (count || 0) + 1);
+                    }
+                }
             });
 
             function openDetailModal(product) {
@@ -1091,7 +839,7 @@
                 document.getElementById('detailTitle').textContent = product.title;
                 document.getElementById('detailCode').textContent = '资源码：' + product.code;
                 document.getElementById('detailDesc').textContent = product.description || '暂无详细信息';
-                document.getElementById('detailPrice').textContent = product.price;
+                document.getElementById('detailPrice').textContent = formatPrice(product.price);
 
                 const detailImg = document.getElementById('detailImg');
                 const detailImgFallback = document.getElementById('detailImgFallback');
@@ -1143,23 +891,22 @@
             function openPurchaseModal(product) {
                 document.getElementById('purchaseName').textContent = product.title;
                 document.getElementById('purchaseCode').textContent = product.code;
-                document.getElementById('purchasePrice').textContent = '¥' + product.price;
-                document.getElementById('purchaseQQ').innerHTML = '购买请加QQ号：<strong>' + escapeHTML(CONFIG.qqNumber) + '</strong>';
+                document.getElementById('purchasePrice').textContent = formatPrice(product.price);
                 openModal(modalPurchaseOverlay);
             }
 
             document.getElementById('btnCopyInfo').addEventListener('click', async function() {
                 if (!currentDetailProduct) return;
                 const p = currentDetailProduct;
-                const copyText = `商品名称：${p.title}\n资源码：${p.code}\n价格：¥${p.price}`;
+                const copyText = `资源名称：${p.title}\n资源码：${p.code}\n价格：${formatPrice(p.price)}`;
                 const success = await copyToClipboard(copyText);
                 const btn = document.getElementById('btnCopyInfo');
                 if (success) {
                     btn.textContent = '✅ 已复制！';
                     btn.classList.add('btn-copy--copied');
-                    showToast('✅ 产品信息已复制到剪贴板');
+                    showToast('✅ 资源信息已复制到剪贴板');
                     setTimeout(() => {
-                        btn.textContent = '📋 复制产品信息';
+                        btn.textContent = '📋 复制资源信息';
                         btn.classList.remove('btn-copy--copied');
                     }, 1800);
                 } else {
@@ -1183,12 +930,10 @@
                         );
                     }
                     const batchResults = await Promise.all(batchPromises);
-                    let batchSuccessCount = 0;
                     for (const result of batchResults) {
                         if (result.ok) {
                             codes.push(result.code);
                             discoveredCodes.add(result.code);
-                            batchSuccessCount++;
                             consecutiveFails = 0;
                         } else {
                             consecutiveFails++;
@@ -1209,9 +954,9 @@
                         fetch(basePath + '3.txt'),
                     ]);
                     if (!res1.ok || !res2.ok || !res3.ok) return null;
-                    const title = (await res1.text()).trim();
-                    const description = (await res2.text()).trim();
-                    const price = (await res3.text()).trim();
+                    const title = (await res1.text()).trim() || '未命名资源';
+                    const description = (await res2.text()).trim() || '';
+                    const price = (await res3.text()).trim() || '0';
                     const imageBasePath = basePath + '4';
                     let imagePath = imageBasePath + '.jpg';
                     const videoPath = basePath + '5.mp4';
@@ -1219,7 +964,6 @@
                     if (detectedExt) imagePath = imageBasePath + '.' + detectedExt;
                     return { code, title, description, price, imagePath, imageBasePath, videoPath };
                 } catch (err) {
-                    console.warn('加载商品数据失败 [code=' + code + ']:', err);
                     return null;
                 }
             }
@@ -1231,9 +975,6 @@
                         if (res.ok && (res.headers.get('content-type') || '').startsWith('image/')) return ext;
                     } catch (e) {}
                 }
-                for (const ext of ['jpg', 'png']) {
-                    try { const res = await fetch(basePathWithoutExt + '.' + ext); if (res.ok) return ext; } catch (e) {}
-                }
                 return null;
             }
 
@@ -1241,23 +982,19 @@
                 loadingIndicator.classList.remove('loading-indicator--hidden');
                 const codes = await discoverResourceCodes();
                 if (codes.length === 0) {
-                    loadingIndicator.innerHTML = '<span style="color:#8899aa;">未发现任何商品资源，请检查"库"文件夹是否存在。</span>';
+                    loadingIndicator.innerHTML = '<span>未发现任何资源，请检查"库"文件夹。</span>';
                     allDiscovered = true;
-                    updateNoMoreMessage();
                     return;
                 }
                 const products = [];
-                const loadBatchSize = 6;
-                for (let i = 0; i < codes.length; i += loadBatchSize) {
-                    const batch = codes.slice(i, i + loadBatchSize);
+                for (let i = 0; i < codes.length; i += 6) {
+                    const batch = codes.slice(i, i + 6);
                     const batchResults = await Promise.all(batch.map(code => loadProductData(code)));
                     for (const product of batchResults) if (product) products.push(product);
-                    loadingIndicator.innerHTML = `<div class="loading-spinner"></div><span>正在加载商品数据... (${Math.min(i+loadBatchSize, codes.length)}/${codes.length})</span>`;
                 }
                 allProducts = products;
                 allDiscovered = true;
                 loadingIndicator.classList.add('loading-indicator--hidden');
-                updateNoMoreMessage();
                 loadMoreProducts();
             }
 
@@ -1274,7 +1011,7 @@
                     <div class="product-card__body">
                         <div class="product-card__title">${escapeHTML(product.title)}</div>
                         <div class="product-card__code">${escapeHTML(product.code.toString())}</div>
-                        <div class="product-card__price">${escapeHTML(product.price)}</div>
+                        <div class="product-card__price">${formatPrice(product.price)}</div>
                     </div>
                 `;
                 card.addEventListener('click', () => openDetailModal(product));
@@ -1282,79 +1019,52 @@
             }
 
             function loadMoreProducts() {
-                if (isLoading || displayedCount >= allProducts.length) { updateNoMoreMessage(); return; }
+                if (isLoading || displayedCount >= allProducts.length) return;
                 isLoading = true;
                 const fragment = document.createDocumentFragment();
-                const endIndex = Math.min(displayedCount + CONFIG.itemsPerLoad, allProducts.length);
-                for (let i = displayedCount; i < endIndex; i++) fragment.appendChild(createProductCard(allProducts[i]));
+                const end = Math.min(displayedCount + CONFIG.itemsPerLoad, allProducts.length);
+                for (let i = displayedCount; i < end; i++) fragment.appendChild(createProductCard(allProducts[i]));
                 productsGrid.appendChild(fragment);
-                displayedCount = endIndex;
+                displayedCount = end;
                 isLoading = false;
-                updateNoMoreMessage();
-            }
-
-            function updateNoMoreMessage() {
-                if (!allDiscovered) { noMoreMsg.classList.add('no-more--hidden'); sentinel.style.display = ''; return; }
-                if (displayedCount >= allProducts.length && allProducts.length > 0) {
+                if (displayedCount >= allProducts.length) {
                     noMoreMsg.classList.remove('no-more--hidden');
                     sentinel.style.display = 'none';
-                } else if (allProducts.length === 0 && allDiscovered) {
-                    noMoreMsg.textContent = '暂无商品可展示';
-                    noMoreMsg.classList.remove('no-more--hidden');
-                    sentinel.style.display = 'none';
-                } else {
-                    noMoreMsg.classList.add('no-more--hidden');
-                    sentinel.style.display = '';
                 }
             }
 
             const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting && !isLoading && displayedCount < allProducts.length) loadMoreProducts();
-                });
-            }, { rootMargin: '200px', threshold: 0 });
+                if (entries[0].isIntersecting && !isLoading && displayedCount < allProducts.length) loadMoreProducts();
+            }, { rootMargin: '200px' });
             observer.observe(sentinel);
-
-            let scrollDebounce = null;
-            window.addEventListener('scroll', function() {
-                if (scrollDebounce) clearTimeout(scrollDebounce);
-                scrollDebounce = setTimeout(() => {
-                    if (isLoading || displayedCount >= allProducts.length) return;
-                    const rect = sentinel.getBoundingClientRect();
-                    if (rect.top < window.innerHeight + 350) loadMoreProducts();
-                }, 150);
-            }, { passive: true });
 
             async function init() {
                 await loadAllProducts();
-                if (displayedCount === 0 && allProducts.length > 0) loadMoreProducts();
-                updateNoMoreMessage();
-                console.log(`✅ Apex资源展示已就绪 | 发现 ${allProducts.length} 个商品`);
+                // 实时计数显示（如果Firebase可用）
+                if (window.clicksRef) {
+                    window.clicksRef.on('value', (snapshot) => {
+                        const count = snapshot.val() || 0;
+                        // 可在页面显示计数，此处仅控制台输出
+                        console.log('累计获取点击次数：', count);
+                    });
+                }
             }
 
             init().catch(err => {
                 console.error('初始化失败:', err);
-                loadingIndicator.innerHTML = '<span style="color:#e63946;">⚠️ 初始化失败，请确保网页已部署在服务器上，且"库"文件夹存在。</span>';
+                loadingIndicator.innerHTML = '<span style="color:#e63946;">⚠️ 初始化失败，请检查网络及文件结构。</span>';
                 loadingIndicator.classList.remove('loading-indicator--hidden');
             });
 
             window.ApexShop = {
-                getAllProducts: () => allProducts,
-                getDiscoveredCodes: () => [...discoveredCodes],
-                refreshProducts: async () => {
-                    allProducts = []; displayedCount = 0; allDiscovered = false; discoveredCodes.clear();
+                refresh: async () => {
+                    allProducts = []; displayedCount = 0; allDiscovered = false;
                     productsGrid.innerHTML = '';
-                    noMoreMsg.classList.add('no-more--hidden');
-                    sentinel.style.display = '';
                     loadingIndicator.classList.remove('loading-indicator--hidden');
-                    loadingIndicator.innerHTML = '<div class="loading-spinner"></div><span>正在探索资源...</span>';
                     await loadAllProducts();
-                    if (displayedCount === 0 && allProducts.length > 0) loadMoreProducts();
-                    updateNoMoreMessage();
                 },
                 openSearch: () => { openModal(modalSearchOverlay); setTimeout(() => searchInput.focus(), 150); },
                 openHelp: () => openModal(modalHelpOverlay),
-                setQQNumber: (qq) => { CONFIG.qqNumber = qq; console.log('QQ号已更新为:', qq); },
             };
         })();
     </script>
