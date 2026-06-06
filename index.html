@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apex资源展示</title>
-    <!-- Firebase SDK（用于实时点击计数，可按需保留或移除） -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
         :root {
             --bg-page: #f5f7fa;
@@ -406,11 +403,16 @@
         .detail-media__video-wrap {
             width: 100%; border-radius: var(--radius-md); overflow: hidden;
             border: 1px solid var(--border-subtle); background: #000;
+            min-height: 60px; display: flex; align-items: center; justify-content: center;
         }
         .detail-media__video { width: 100%; display: block; border-radius: var(--radius-md); }
+        .detail-media__video-placeholder {
+            color: #8899aa; font-size: 0.95rem; text-align: center; padding: 20px;
+            background: #f5f7fa; border-radius: var(--radius-md); width: 100%;
+        }
         .detail-info {
             flex: 1 1 280px; min-width: 250px; display: flex; flex-direction: column;
-            gap: 14px; position: relative; padding-bottom: 70px; /* 为固定底部留空间 */
+            gap: 14px; position: relative; padding-bottom: 70px;
         }
         .detail-info__title { font-size: 1.6rem; font-weight: 800; color: var(--text-primary); }
         .detail-info__code {
@@ -452,7 +454,7 @@
         .purchase-notice {
             background: #f5f7fa; border-radius: var(--radius-sm); padding: 14px 16px;
             font-size: 0.85rem; color: #4a5a6a; line-height: 1.7; white-space: pre-wrap;
-            text-align: left; /* 顶格显示 */
+            text-align: left;
         }
         .purchase-notice strong, .purchase-notice .highlight-time {
             color: var(--accent-red); font-weight: 700;
@@ -531,8 +533,8 @@
 
         <!-- 视图切换按钮 -->
         <div class="view-toggle">
-            <button class="view-toggle__btn active" id="btnViewGrid">📦 多列视图</button>
-            <button class="view-toggle__btn" id="btnViewList">📋 列表视图</button>
+            <button class="view-toggle__btn active" id="btnViewGrid">多列视图</button>
+            <button class="view-toggle__btn" id="btnViewList">列表视图</button>
         </div>
 
         <div class="products-grid" id="productsGrid"></div>
@@ -550,11 +552,16 @@
             <button class="modal-close" id="btnCloseHelp" aria-label="关闭">✕</button>
             <div class="info-section">
                 <div class="info-section__title">📢 最近更新公告</div>
-                <div class="info-section__content">【更新公告占位】请在此处编写最近的更新公告内容...</div>
+                <div class="info-section__content">2026.5.31更新公告：1.0.1快照版本发布：
+快照添加了10001~1000x多款全新资源。
+版本添加了列表视图模式，更便于手机端查看。
+版本修复了一些已知问题。
+                </div>
             </div>
             <div class="info-section">
                 <div class="info-section__title">📖 网站用法说明</div>
-                <div class="info-section__content">【用法说明占位】请在此处编写网站的使用说明...</div>
+                <div class="info-section__content">该网站遵循法规，合法转载了外网的一些视频，内容为积极正能量，没有出现任何低俗画面以及导流行为，拒绝负面资源，抵制不良网站！
+该网站仅供浏览官方的资源，确定后可以点击获取按钮，添加官方QQ号，通过资源码来获取相应资源。</div>
             </div>
         </div>
     </div>
@@ -579,9 +586,10 @@
             <div class="detail-layout">
                 <div class="detail-media">
                     <img class="detail-media__image" id="detailImg" src="" alt="资源预览图" onerror="this.style.display='none'; document.getElementById('detailImgFallback').style.display='flex';">
-                    <div class="product-card__img--placeholder detail-media__image" id="detailImgFallback" style="display:none; aspect-ratio:4/3; border-radius:10px; font-size:2rem;">📷 暂无图片</div>
+                    <div class="product-card__img--placeholder detail-media__image" id="detailImgFallback" style="display:none; aspect-ratio:4/3; border-radius:10px; font-size:2rem;">📷暂无图片</div>
                     <div class="detail-media__video-wrap" id="detailVideoWrap">
                         <video class="detail-media__video" id="detailVideo" src="" controls preload="metadata" playsinline>您的浏览器不支持视频播放</video>
+                        <div class="detail-media__video-placeholder" id="detailVideoPlaceholder" style="display:none;">暂无展示视频</div>
                     </div>
                 </div>
                 <div class="detail-info">
@@ -618,7 +626,7 @@
                     获取请加QQ号：<strong>3021581403</strong>
                 </div>
                 <div class="purchase-notice">
-<span class="highlight-time"><strong>资源服务时间：工作日 20:00-23:00</strong></span>
+<span class="highlight-time"><strong>资源服务时间：工作日 19:30-22:30</strong></span>
 若获取资源请注明来源，以及需要获取资源对应的资源码。
 在服务时间内，我会向您发送付款码，请扫码支付截图。
 若不在服务时间内，请耐心等待。谢谢！
@@ -627,31 +635,12 @@
                     <button class="btn-copy" id="btnCopyInfo">📋 复制资源信息</button>
                     <button class="btn-confirm" id="btnConfirmPurchase">确定</button>
                 </div>
-                <div class="copy-hint" style="font-size:0.8rem;color:#8899aa;text-align:center;">复制资源信息后，发送到上方QQ号以完成获取</div>
+                <div class="copy-hint" style="font-size:0.8rem;color:#8899aa;text-align:center;">复制资源信息后，添加上方QQ号并发送以在工作时间等待获取</div>
             </div>
         </div>
     </div>
 
     <script>
-        // ==================== Firebase 实时计数（可选） ====================
-        const firebaseConfig = {
-            // 请替换为您自己的Firebase配置
-            apiKey: "AIzaSy...",
-            authDomain: "xxx.firebaseapp.com",
-            databaseURL: "https://xxx.firebaseio.com",
-            projectId: "xxx",
-            storageBucket: "xxx.appspot.com",
-            messagingSenderId: "000",
-            appId: "1:000:web:xxx"
-        };
-        try {
-            firebase.initializeApp(firebaseConfig);
-            window.db = firebase.database();
-            window.clicksRef = window.db.ref('totalClicks');
-        } catch (e) {
-            console.warn('Firebase未配置或加载失败，实时计数不可用');
-        }
-
         (function() {
             const CONFIG = {
                 libraryPath: './库/',
@@ -801,7 +790,7 @@
                 const q = query.toLowerCase();
                 const matched = allProducts.filter(p => p.code.toString().includes(q) || p.title.toLowerCase().includes(q));
                 if (matched.length === 0) {
-                    searchResults.innerHTML = '<div style="text-align:center;padding:30px;color:#8899aa;">😔 未找到匹配的资源</div>';
+                    searchResults.innerHTML = '<div style="text-align:center;padding:30px;color:#8899aa;">未找到匹配的资源</div>';
                     return;
                 }
                 matched.forEach(p => {
@@ -827,10 +816,6 @@
             document.getElementById('btnGet').addEventListener('click', () => {
                 if (currentDetailProduct) {
                     openPurchaseModal(currentDetailProduct);
-                    // 实时计数增加
-                    if (window.clicksRef) {
-                        window.clicksRef.transaction((count) => (count || 0) + 1);
-                    }
                 }
             });
 
@@ -845,7 +830,9 @@
                 const detailImgFallback = document.getElementById('detailImgFallback');
                 const detailVideo = document.getElementById('detailVideo');
                 const detailVideoWrap = document.getElementById('detailVideoWrap');
+                const detailVideoPlaceholder = document.getElementById('detailVideoPlaceholder');
 
+                // 重置图片
                 detailImg.style.display = '';
                 detailImgFallback.style.display = 'none';
                 detailImg.src = product.imagePath;
@@ -856,9 +843,37 @@
                     });
                 };
 
-                detailVideo.src = product.videoPath;
-                detailVideo.load();
-                detailVideoWrap.style.display = product.videoPath ? '' : 'none';
+                // 重置视频显示
+                detailVideo.style.display = '';
+                detailVideoPlaceholder.style.display = 'none';
+
+                // 检查视频是否存在
+                if (product.videoPath) {
+                    // 先检查视频文件是否可访问
+                    fetch(product.videoPath, { method: 'HEAD' })
+                        .then(res => {
+                            if (res.ok) {
+                                detailVideo.src = product.videoPath;
+                                detailVideo.load();
+                                detailVideo.style.display = '';
+                                detailVideoPlaceholder.style.display = 'none';
+                            } else {
+                                showVideoPlaceholder();
+                            }
+                        })
+                        .catch(() => {
+                            showVideoPlaceholder();
+                        });
+                } else {
+                    showVideoPlaceholder();
+                }
+
+                function showVideoPlaceholder() {
+                    detailVideo.style.display = 'none';
+                    detailVideoPlaceholder.style.display = 'block';
+                    detailVideo.src = '';
+                }
+
                 openModal(modalDetailOverlay);
                 detailVideo.pause();
                 detailVideo.currentTime = 0;
@@ -902,11 +917,11 @@
                 const success = await copyToClipboard(copyText);
                 const btn = document.getElementById('btnCopyInfo');
                 if (success) {
-                    btn.textContent = '✅ 已复制！';
+                    btn.textContent = '✅已复制！';
                     btn.classList.add('btn-copy--copied');
-                    showToast('✅ 资源信息已复制到剪贴板');
+                    showToast('✅资源信息已复制到剪贴板');
                     setTimeout(() => {
-                        btn.textContent = '📋 复制资源信息';
+                        btn.textContent = '📋复制资源信息';
                         btn.classList.remove('btn-copy--copied');
                     }, 1800);
                 } else {
@@ -962,7 +977,25 @@
                     const videoPath = basePath + '5.mp4';
                     const detectedExt = await detectImageExtension(imageBasePath);
                     if (detectedExt) imagePath = imageBasePath + '.' + detectedExt;
-                    return { code, title, description, price, imagePath, imageBasePath, videoPath };
+                    
+                    // 检查视频是否存在
+                    let hasVideo = false;
+                    try {
+                        const videoCheck = await fetch(videoPath, { method: 'HEAD' });
+                        hasVideo = videoCheck.ok;
+                    } catch (e) {
+                        hasVideo = false;
+                    }
+                    
+                    return { 
+                        code, 
+                        title, 
+                        description, 
+                        price, 
+                        imagePath, 
+                        imageBasePath, 
+                        videoPath: hasVideo ? videoPath : null 
+                    };
                 } catch (err) {
                     return null;
                 }
@@ -982,7 +1015,7 @@
                 loadingIndicator.classList.remove('loading-indicator--hidden');
                 const codes = await discoverResourceCodes();
                 if (codes.length === 0) {
-                    loadingIndicator.innerHTML = '<span>未发现任何资源，请检查"库"文件夹。</span>';
+                    loadingIndicator.innerHTML = '<span>未发现任何资源，请检查库文件。</span>';
                     allDiscovered = true;
                     return;
                 }
@@ -1040,14 +1073,6 @@
 
             async function init() {
                 await loadAllProducts();
-                // 实时计数显示（如果Firebase可用）
-                if (window.clicksRef) {
-                    window.clicksRef.on('value', (snapshot) => {
-                        const count = snapshot.val() || 0;
-                        // 可在页面显示计数，此处仅控制台输出
-                        console.log('累计获取点击次数：', count);
-                    });
-                }
             }
 
             init().catch(err => {
