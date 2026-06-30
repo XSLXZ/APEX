@@ -144,6 +144,10 @@
         .products-grid.list-view .product-card__title { -webkit-line-clamp:1; font-size:1rem; flex-basis:100%; }
         .products-grid.list-view .product-card__code { font-size:0.95rem; margin-right:auto; }
         .products-grid.list-view .product-card__price { font-size:1.1rem; margin-top:0; }
+        .products-grid.list-view .product-card__add-btn {
+            position: static; margin-left: auto; margin-right: 0; margin-top:0; 
+            width: 32px; height: 32px; 
+        }
 
         .product-card {
             background:#fff; border:1px solid var(--border-subtle); border-radius:var(--radius-lg);
@@ -178,7 +182,7 @@
         .product-card__add-btn {
             position: absolute;
             bottom: 12px;
-            right: 16px;
+            right: 60px; /* 往左移，避开价格 */
             width: 32px;
             height: 32px;
             background: var(--blue-primary);
@@ -353,6 +357,14 @@
         }
         @keyframes toastIn { from { opacity:0; transform:translateX(-50%) translateY(30px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
         @keyframes toastOut { from { opacity:1; transform:translateX(-50%) translateY(0); } to { opacity:0; transform:translateX(-50%) translateY(20px); } }
+
+        /* 搜索结果购物车按钮 */
+        .search-result-item .add-to-cart-btn {
+            width: 28px; height: 28px; background: var(--blue-primary); color: #fff;
+            border: none; border-radius: 50%; font-size: 16px; line-height: 1;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            margin-left: auto; flex-shrink: 0;
+        }
 
         @media (max-width:768px) {
             .top-bar { gap:8px; padding:10px 0; }
@@ -823,9 +835,28 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                 if (matched.length === 0) { searchResults.innerHTML = '<div style="text-align:center;padding:30px;color:#8899aa;">未找到匹配资源</div>'; return; }
                 matched.forEach(p => {
                     const item = document.createElement('div');
-                    item.style.cssText = 'display:flex; align-items:center; gap:14px; padding:12px; background:#f8fafc; border:1px solid #dce3ea; border-radius:10px; cursor:pointer; margin-bottom:8px;';
-                    item.innerHTML = `<img src="${escapeHTML(p.imagePath)}" style="width:60px; height:60px; object-fit:cover; border-radius:6px;" onerror="this.style.display='none';"><div style="flex:1;"><div style="font-weight:600;">${escapeHTML(p.title)}</div><div style="font-size:0.8rem; color:var(--blue-primary);">资源码：${p.code}</div></div><span style="color:var(--accent-red); font-weight:700;">${formatPrice(p.price)}</span>`;
-                    item.addEventListener('click', () => { closeModal(document.getElementById('modalSearchOverlay')); openDetailModal(p); });
+                    item.className = 'search-result-item';
+                    item.style.cssText = 'display:flex; align-items:center; gap:14px; padding:12px; background:#f8fafc; border:1px solid #dce3ea; border-radius:10px; cursor:pointer; margin-bottom:8px; position:relative;';
+                    item.innerHTML = `
+                        <img src="${escapeHTML(p.imagePath)}" style="width:60px; height:60px; object-fit:cover; border-radius:6px;" onerror="this.style.display='none';">
+                        <div style="flex:1; min-width:0;">
+                            <div style="font-weight:600;">${escapeHTML(p.title)}</div>
+                            <div style="font-size:0.8rem; color:var(--blue-primary);">资源码：${p.code}</div>
+                        </div>
+                        <span style="color:var(--accent-red); font-weight:700; margin-right:8px;">${formatPrice(p.price)}</span>
+                        <button class="add-to-cart-btn" title="加入购物车">＋</button>
+                    `;
+                    // 为加号按钮绑定事件
+                    const addBtn = item.querySelector('.add-to-cart-btn');
+                    addBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        addToCart(p);
+                    });
+                    // 整个条目点击查看详情
+                    item.addEventListener('click', () => {
+                        closeModal(document.getElementById('modalSearchOverlay'));
+                        openDetailModal(p);
+                    });
                     searchResults.appendChild(item);
                 });
             });
