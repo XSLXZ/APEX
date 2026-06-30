@@ -273,7 +273,7 @@
         }
         .modal-close:hover { background:#ffebee; border-color:#e63946; color:#e63946; }
 
-        /* 全屏年龄警告（已修复滚动） */
+        /* 全屏年龄警告（可滚动） */
         .age-wall {
             position:fixed; inset:0; z-index:9999; background:#000;
             display:flex; flex-direction:column; align-items:center;
@@ -490,10 +490,17 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
             </div>
             <div class="info-section">
                 <div class="info-section__title">📖 网站用法说明</div>
-                <div class="info-section__content">该网站遵循法规，合法转载了外网的一些视频，内容为积极正能量，没有出现任何低俗画面以及导流行为，拒绝负面资源，抵制不良网站！<br>该网站仅供浏览官方的资源，确定后可以点击获取按钮，添加官方QQ号，通过资源码来获取相应资源。<div class="pv-counter">P:<span id="busuanzi_value_site_pv"></span></div></div>
+                <div class="info-section__content">该网站遵循法规，合法转载了外网的一些视频，内容为积极正能量，没有出现任何低俗画面以及导流行为，拒绝负面资源，抵制不良网站！<br>该网站仅供浏览官方的资源，确定后可以点击获取按钮，添加官方QQ号，通过资源码来获取相应资源。
+                    <div class="pv-counter">P:<span id="pv_number"></span></div>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- 不蒜子隐藏容器 -->
+    <span id="busuanzi_container_site_pv" style="display:none;">
+        <span id="busuanzi_value_site_pv"></span>
+    </span>
 
     <!-- 搜索弹窗 -->
     <div class="modal-overlay modal-overlay--hidden" id="modalSearchOverlay">
@@ -621,6 +628,16 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                 } catch (e) { return false; }
             }
 
+            // 不蒜子访客计数同步
+            const pvDisplay = document.getElementById('pv_number');
+            const busuanziValue = document.getElementById('busuanzi_value_site_pv');
+            if (busuanziValue) {
+                const observer = new MutationObserver(() => {
+                    pvDisplay.textContent = busuanziValue.textContent;
+                });
+                observer.observe(busuanziValue, { characterData: true, subtree: true, childList: true });
+            }
+
             // 请求超时
             function fetchWithTimeout(url, timeout = 5000) {
                 return new Promise((resolve, reject) => {
@@ -652,7 +669,8 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                 loadingIndicator.classList.add('loading-indicator--hidden');
             });
 
-            // 购物车逻辑
+            // 购物车逻辑（不变，此处省略但保证完整运行，实际复制之前完整代码的购物车部分）
+            // ...（因篇幅，不再重复全部，但下方包含完整购物车函数）
             function updateCartUI() {
                 cartCount.textContent = cart.length;
                 let total = 0;
@@ -716,12 +734,10 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                 showToast(ok ? '清单已复制' : '复制失败');
             });
 
-            // 投稿
+            // 投稿、视图切换等（保持原逻辑）
             document.getElementById('btnContribute').addEventListener('click', () => openModal(document.getElementById('modalContributeOverlay')));
             document.getElementById('btnCloseContribute').addEventListener('click', () => closeModal(document.getElementById('modalContributeOverlay')));
             document.getElementById('btnConfirmContribute').addEventListener('click', () => closeModal(document.getElementById('modalContributeOverlay')));
-
-            // 视图切换
             document.getElementById('btnViewGrid').addEventListener('click', () => {
                 productsGrid.classList.remove('list-view');
                 document.getElementById('btnViewGrid').classList.add('active');
@@ -733,7 +749,7 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                 document.getElementById('btnViewGrid').classList.remove('active');
             });
 
-            // 资源发现
+            // 资源发现与加载
             async function discoverResourceCodes() {
                 const codes = [];
                 let consecutiveFails = 0, currentCode = CONFIG.resourceCodeStart;
