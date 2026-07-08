@@ -325,7 +325,7 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
         <div class="cart-body" id="cartBody"></div>
         <div class="cart-footer">
             <span class="cart-total">合计：<span id="cartTotalPrice">0 r</span></span>
-            <button class="btn-cart-checkout" id="btnCartCheckout">一起获取</button>
+            <button class="btn-cart-checkout" id="btnCartCheckout">全部获取</button>
         </div>
     </div>
 
@@ -339,7 +339,21 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
             </div>
             <div class="info-section">
                 <div class="info-section__title">📖 网站用法说明</div>
-                <div class="info-section__content">该网站遵循法规，合法转载了外网的一些视频，内容为积极正能量，没有出现任何低俗画面以及导流行为，拒绝负面资源，抵制不良网站！<br>该网站仅供浏览官方的资源，确定后可以点击获取按钮，添加官方QQ号，通过资源码来获取相应资源。
+                <div class="info-section__content">APEX is a curated resource display platform for cultural exchange. Some displayed or purchasable materials may contain mature themes unsuitable for minors. In accordance with the laws of the People's Republic of China on the protection of minors, access to such content and the ability to make purchases are restricted to users aged 18 or above. APEX does not host or sell any content that violates Chinese law. All resources are pre-reviewed and intended for informational, educational, and lawful commercial purposes. This platform is created for academic purposes.
+
+By clicking "Confirm", you acknowledge and agree that:
+· You are at least 18 years of age.
+· You understand that some displayed or purchasable resources may contain mature themes.
+· You voluntarily choose to browse and/or purchase such content.
+By clicking "Cancel", content intended for adults only will be hidden.
+
+APEX 是一个用于文化交流的精选资源展示平台。所展示或可购买的资源可能包含不适合未成年人的成熟主题。依据中华人民共和国未成年人保护相关法律，对此类内容的访问及购买行为仅限年满18周岁的用户进行。本平台不托管或出售任何违反中国法律的内容。所有资源均经预先审查，仅供信息参考、教育交流及合法商业用途。本平台为学术用途创建。
+
+点击“确认”，即代表您知悉并同意：
+· 您已年满18周岁。
+· 您知晓所展示或可购买的部分资源可能含有成熟主题。
+· 您自愿选择浏览和/或购买此类内容。
+点击“取消”，将隐藏仅面向成年人的内容。
                     <div class="pv-counter">P:<span id="pv_number">-</span></div>
                 </div>
             </div>
@@ -401,7 +415,7 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
             <div class="checkout-list" id="checkoutList"></div>
             <div class="checkout-total" id="checkoutTotal"></div>
             <div class="purchase-highlight">获取请加QQ号：<strong>3021581403</strong></div>
-            <div class="purchase-notice"><strong>资源服务时间：工作日 19:30-22:30</strong><br>若获取资源请注明来源及资源码。</div>
+            <div class="purchase-notice"><strong>资源服务时间：工作日 11:00-22:00</strong><br>获取资源请复制清单后发送至QQ号并注明来源（购买资源）。</div>
             <div class="btn-row">
                 <button class="btn-copy" id="btnCopyCartInfo">📋 复制清单</button>
                 <button class="btn-confirm" id="btnConfirmCart">确定</button>
@@ -414,7 +428,7 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
         <div class="modal-panel modal-panel--small">
             <button class="modal-close" id="btnCloseContribute">✕</button>
             <div class="purchase-highlight">投稿请加QQ号：<strong>3021581403</strong></div>
-            <div class="purchase-notice"><strong>工作时间：工作日 19:30-22:30</strong>，请注明来意，感谢！</div>
+            <div class="purchase-notice"><strong>工作时间：工作日 11:00-22:00</strong>，投稿通过有偿，请注明来意（投稿），感谢！</div>
             <button class="btn-confirm" id="btnConfirmContribute" style="margin-top:12px;">确定</button>
         </div>
     </div>
@@ -674,7 +688,7 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                 loadingIndicator.classList.remove('loading-indicator--hidden');
                 const codes = await discoverResourceCodes();
                 if (codes.length === 0) {
-                    loadingIndicator.innerHTML = '<span>未发现任何资源，请检查库文件夹。</span>';
+                    loadingIndicator.innerHTML = '<span>未发现任何资源，请检查库文件。</span>';
                     allDiscovered = true;
                     return;
                 }
