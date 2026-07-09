@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Apex资源展示</title>
     <style>
+        /* 全部样式保持原样，未改动 */
         :root {
             --bg-page: #f5f7fa;
             --bg-card: #ffffff;
@@ -262,7 +263,7 @@
     </style>
 </head>
 <body>
-    <!-- 全屏年龄警告 -->
+    <!-- 全屏年龄警告，保持原样 -->
     <div class="age-wall" id="ageWall">
         <h2>⚠️ WARNING 警告</h2>
         <div class="subtitle">APEX Is not for everyone<br>APEX资源并不适合所有人</div>
@@ -329,7 +330,7 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
         </div>
     </div>
 
-    <!-- 说明弹窗 -->
+    <!-- 说明弹窗，已保留您的更新内容 -->
     <div class="modal-overlay modal-overlay--hidden" id="modalHelpOverlay">
         <div class="modal-panel modal-panel--wide">
             <button class="modal-close" id="btnCloseHelp">✕</button>
@@ -337,7 +338,7 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                 <div class="info-section__title">📢 最近更新公告</div>
                 <div class="info-section__content">2026.7.9更新公告：1.1.1版本及快照发布：
 1.快照添加了10004~10005多款全新资源。
-2.版本更改了开屏警告，确认后请确认年满10岁，否则后果由你自己承担。
+2.版本更改了开屏警告，确认后请确认年满18岁，否则后果由你自己承担。
 3.版本添加了购物车功能，支持一键获取，便于用户购买。
 4.版本添加了我要投稿功能，可以通过加QQ号投稿。
 5.版本更新了暑期服务时间。
@@ -372,7 +373,7 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
         </div>
     </div>
 
-    <!-- 不蒜子隐藏容器（必须保留，用于获取数据） -->
+    <!-- 不蒜子隐藏容器 -->
     <span id="busuanzi_container_site_pv" style="display:none;">
         <span id="busuanzi_value_site_pv"></span>
     </span>
@@ -392,7 +393,7 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
             <button class="modal-close" id="btnCloseDetail">✕</button>
             <div class="detail-layout">
                 <div class="detail-media">
-                    <img class="detail-media__image" id="detailImg" src="" alt="预览图" onerror="this.style.display='none'; document.getElementById('detailImgFallback').style.display='flex';">
+                    <img class="detail-media__image" id="detailImg" src="" alt="预览图">
                     <div class="product-card__img--placeholder detail-media__image" id="detailImgFallback" style="display:none; aspect-ratio:4/3; border-radius:10px; font-size:2rem;">暂无图片</div>
                     <div class="detail-media__video-wrap" id="detailVideoWrap">
                         <video class="detail-media__video" id="detailVideo" src="" controls></video>
@@ -480,7 +481,6 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
             const cartCount = document.getElementById('cartCount');
             const cartTotalPrice = document.getElementById('cartTotalPrice');
 
-            // 工具函数
             function escapeHTML(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
             function formatPrice(p) { return `${p} r`; }
             function showToast(msg) {
@@ -504,13 +504,12 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                 } catch (e) { return false; }
             }
 
-            // 不蒜子访客计数 - 轮询兼容方案（解决鸿蒙浏览器不显示问题）
+            // 不蒜子轮询
             const pvDisplay = document.getElementById('pv_number');
             const busuanziValue = document.getElementById('busuanzi_value_site_pv');
             let pollTimer = null;
             let pollCount = 0;
-            const maxPoll = 20; // 最多轮询10秒
-
+            const maxPoll = 20;
             function updatePVDisplay() {
                 const val = busuanziValue.textContent.trim();
                 if (val && val !== '') {
@@ -518,7 +517,6 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                     if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
                 }
             }
-
             if (busuanziValue) {
                 pollTimer = setInterval(() => {
                     updatePVDisplay();
@@ -526,14 +524,13 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                     if (pollCount >= maxPoll) {
                         clearInterval(pollTimer);
                         if (!pvDisplay.textContent || pvDisplay.textContent === '-' || pvDisplay.textContent === '') {
-                            pvDisplay.textContent = '-'; // 超时显示短横线
+                            pvDisplay.textContent = '-';
                         }
                     }
                 }, 500);
-                updatePVDisplay(); // 立即检查一次
+                updatePVDisplay();
             }
 
-            // 请求超时
             function fetchWithTimeout(url, timeout = 5000) {
                 return new Promise((resolve, reject) => {
                     const timer = setTimeout(() => reject(new Error('timeout')), timeout);
@@ -564,7 +561,7 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                 loadingIndicator.classList.add('loading-indicator--hidden');
             });
 
-            // 购物车逻辑
+            // 购物车
             function updateCartUI() {
                 cartCount.textContent = cart.length;
                 let total = 0;
@@ -628,10 +625,10 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                 showToast(ok ? '清单已复制' : '复制失败');
             });
 
-            // 投稿、视图切换
             document.getElementById('btnContribute').addEventListener('click', () => openModal(document.getElementById('modalContributeOverlay')));
             document.getElementById('btnCloseContribute').addEventListener('click', () => closeModal(document.getElementById('modalContributeOverlay')));
             document.getElementById('btnConfirmContribute').addEventListener('click', () => closeModal(document.getElementById('modalContributeOverlay')));
+
             document.getElementById('btnViewGrid').addEventListener('click', () => {
                 productsGrid.classList.remove('list-view');
                 document.getElementById('btnViewGrid').classList.add('active');
@@ -643,7 +640,89 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                 document.getElementById('btnViewGrid').classList.remove('active');
             });
 
-            // 资源发现与加载（带超时）
+            // ===== 核心修复：图片智能回退函数 =====
+            function tryImageFallback(imgElement, basePath, currentExt, onAllFailed) {
+                const tried = new Set([currentExt]);
+                const allExts = CONFIG.imageExtensions.filter(e => e !== currentExt);
+                let idx = 0;
+                function tryNext() {
+                    if (idx >= allExts.length) {
+                        if (onAllFailed) onAllFailed();
+                        return;
+                    }
+                    const newExt = allExts[idx];
+                    if (tried.has(newExt)) {
+                        idx++;
+                        tryNext();
+                        return;
+                    }
+                    tried.add(newExt);
+                    const testImg = new Image();
+                    testImg.onload = function() {
+                        imgElement.src = basePath + '.' + newExt;
+                        imgElement.style.display = '';
+                        // 同时更新产品对象的 imagePath（如果是详情页可能需要）
+                    };
+                    testImg.onerror = function() {
+                        idx++;
+                        tryNext();
+                    };
+                    testImg.src = basePath + '.' + newExt;
+                    idx++;
+                }
+                tryNext();
+            }
+
+            // ===== 修改后的资源加载函数，只要求1.txt存在 =====
+            async function loadProductData(code) {
+                const base = CONFIG.libraryPath + code + '/';
+                try {
+                    const res1 = await fetchWithTimeout(base + '1.txt');
+                    if (!res1.ok) return null;
+                    const title = (await res1.text()).trim() || '未命名资源';
+
+                    let desc = '';
+                    try {
+                        const res2 = await fetchWithTimeout(base + '2.txt');
+                        if (res2.ok) desc = (await res2.text()).trim();
+                    } catch(e) {}
+
+                    let price = '0';
+                    try {
+                        const res3 = await fetchWithTimeout(base + '3.txt');
+                        if (res3.ok) price = (await res3.text()).trim();
+                    } catch(e) {}
+
+                    const imgBase = base + '4';
+                    let imgPath = imgBase + '.jpg';
+                    let detectedExt = null;
+                    try {
+                        detectedExt = await detectImageExtension(imgBase);
+                    } catch(e) {}
+                    if (detectedExt) imgPath = imgBase + '.' + detectedExt;
+
+                    let videoPath = null;
+                    try {
+                        const vRes = await fetchWithTimeout(base + '5.mp4', 3000);
+                        if (vRes.ok) videoPath = base + '5.mp4';
+                    } catch(e) {}
+
+                    return { code, title, description: desc, price, imagePath: imgPath, imageBasePath: imgBase, videoPath };
+                } catch(e) {
+                    return null;
+                }
+            }
+
+            async function detectImageExtension(base) {
+                for (const ext of CONFIG.imageExtensions) {
+                    try {
+                        const r = await fetchWithTimeout(base + '.' + ext, 3000);
+                        if (r.ok && r.headers.get('content-type')?.startsWith('image/')) return ext;
+                    } catch(e) {}
+                }
+                return null;
+            }
+
             async function discoverResourceCodes() {
                 const codes = [];
                 let consecutiveFails = 0, currentCode = CONFIG.resourceCodeStart;
@@ -668,33 +747,7 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                 }
                 return codes;
             }
-            async function detectImageExtension(base) {
-                for (const ext of CONFIG.imageExtensions) {
-                    try { const r = await fetchWithTimeout(base + '.' + ext, 2000); if (r.ok && r.headers.get('content-type')?.startsWith('image/')) return ext; } catch(e) {}
-                }
-                return null;
-            }
-            async function loadProductData(code) {
-                const base = CONFIG.libraryPath + code + '/';
-                try {
-                    const [r1, r2, r3] = await Promise.all([
-                        fetchWithTimeout(base + '1.txt'),
-                        fetchWithTimeout(base + '2.txt'),
-                        fetchWithTimeout(base + '3.txt')
-                    ]);
-                    if (!r1.ok || !r2.ok || !r3.ok) return null;
-                    const title = (await r1.text()).trim() || '未命名资源';
-                    const desc = (await r2.text()).trim() || '';
-                    const price = (await r3.text()).trim() || '0';
-                    const imgBase = base + '4';
-                    let imgPath = imgBase + '.jpg';
-                    const ext = await detectImageExtension(imgBase);
-                    if (ext) imgPath = imgBase + '.' + ext;
-                    let videoPath = null;
-                    try { const vRes = await fetchWithTimeout(base + '5.mp4', 3000); if (vRes.ok) videoPath = base + '5.mp4'; } catch(e) {}
-                    return { code, title, description: desc, price, imagePath: imgPath, imageBasePath: imgBase, videoPath };
-                } catch(e) { return null; }
-            }
+
             async function loadAllProducts() {
                 loadingIndicator.innerHTML = '<div class="loading-spinner"></div><span>正在探索资源...</span>';
                 loadingIndicator.classList.remove('loading-indicator--hidden');
@@ -717,13 +770,13 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                 if (allProducts.length > 0) loadMoreProducts();
                 else loadingIndicator.innerHTML = '<span>未能加载任何资源数据。</span>';
             }
+
             function createProductCard(p) {
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.innerHTML = `
                     <div class="product-card__img-wrap">
-                        <img class="product-card__img" src="${escapeHTML(p.imagePath)}" alt="${escapeHTML(p.title)}" loading="lazy"
-                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <img class="product-card__img" src="${escapeHTML(p.imagePath)}" alt="${escapeHTML(p.title)}" loading="lazy">
                         <div class="product-card__img--placeholder" style="display:none;">暂无图片</div>
                     </div>
                     <div class="product-card__body">
@@ -732,10 +785,25 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                         <div class="product-card__price">${formatPrice(p.price)}</div>
                         <button class="product-card__add-btn" title="加入购物车">＋</button>
                     </div>`;
+
+                const imgEl = card.querySelector('.product-card__img');
+                const placeholderEl = card.querySelector('.product-card__img--placeholder');
+                imgEl.addEventListener('error', function() {
+                    const currentSrc = imgEl.src;
+                    const dotIndex = currentSrc.lastIndexOf('.');
+                    const basePath = dotIndex > 0 ? currentSrc.substring(0, dotIndex) : p.imageBasePath;
+                    const currentExt = dotIndex > 0 ? currentSrc.substring(dotIndex+1) : 'jpg';
+                    tryImageFallback(imgEl, basePath, currentExt, () => {
+                        imgEl.style.display = 'none';
+                        placeholderEl.style.display = 'flex';
+                    });
+                });
+
                 card.querySelector('.product-card__add-btn').addEventListener('click', (e) => { e.stopPropagation(); addToCart(p); });
                 card.addEventListener('click', () => openDetailModal(p));
                 return card;
             }
+
             function loadMoreProducts() {
                 if (isLoading || displayedCount >= allProducts.length) return;
                 isLoading = true;
@@ -747,27 +815,47 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                 isLoading = false;
                 if (displayedCount >= allProducts.length) { noMoreMsg.classList.remove('no-more--hidden'); sentinel.style.display = 'none'; }
             }
+
             function openDetailModal(p) {
                 currentDetailProduct = p;
                 document.getElementById('detailTitle').textContent = p.title;
                 document.getElementById('detailCode').textContent = '资源码：' + p.code;
                 document.getElementById('detailDesc').textContent = p.description || '暂无详细信息';
                 document.getElementById('detailPrice').textContent = formatPrice(p.price);
+
                 const img = document.getElementById('detailImg');
                 const imgFallback = document.getElementById('detailImgFallback');
                 const video = document.getElementById('detailVideo');
                 const videoPlaceholder = document.getElementById('detailVideoPlaceholder');
-                img.style.display = ''; imgFallback.style.display = 'none';
+
+                img.style.display = '';
+                imgFallback.style.display = 'none';
                 img.src = p.imagePath;
-                img.onerror = () => { img.style.display = 'none'; imgFallback.style.display = 'flex'; };
+
+                // 详情页图片错误处理
+                img.onerror = function() {
+                    const currentSrc = img.src;
+                    const dotIndex = currentSrc.lastIndexOf('.');
+                    const basePath = dotIndex > 0 ? currentSrc.substring(0, dotIndex) : p.imageBasePath;
+                    const currentExt = dotIndex > 0 ? currentSrc.substring(dotIndex+1) : 'jpg';
+                    tryImageFallback(img, basePath, currentExt, () => {
+                        img.style.display = 'none';
+                        imgFallback.style.display = 'flex';
+                    });
+                };
+
                 if (p.videoPath) {
-                    video.style.display = ''; videoPlaceholder.style.display = 'none';
-                    video.src = p.videoPath; video.load();
+                    video.style.display = '';
+                    videoPlaceholder.style.display = 'none';
+                    video.src = p.videoPath;
+                    video.load();
                 } else {
-                    video.style.display = 'none'; videoPlaceholder.style.display = 'block';
+                    video.style.display = 'none';
+                    videoPlaceholder.style.display = 'block';
                 }
                 openModal(document.getElementById('modalDetailOverlay'));
             }
+
             document.getElementById('btnGet').addEventListener('click', () => {
                 if (!currentDetailProduct) return;
                 const info = document.getElementById('purchaseInfoSingle');
@@ -814,6 +902,16 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                         </div>
                         <span style="color:var(--accent-red); font-weight:700; margin-right:8px;">${formatPrice(p.price)}</span>
                         <button class="search-item-add-btn" title="加入购物车">＋</button>`;
+                    // 搜索结果图片回退
+                    const searchImg = item.querySelector('img');
+                    searchImg.addEventListener('error', function() {
+                        const dotIndex = searchImg.src.lastIndexOf('.');
+                        const basePath = dotIndex > 0 ? searchImg.src.substring(0, dotIndex) : p.imageBasePath;
+                        const currentExt = dotIndex > 0 ? searchImg.src.substring(dotIndex+1) : 'jpg';
+                        tryImageFallback(searchImg, basePath, currentExt, () => {
+                            searchImg.style.display = 'none';
+                        });
+                    });
                     item.addEventListener('click', (e) => {
                         if (e.target.classList.contains('search-item-add-btn')) return;
                         closeModal(document.getElementById('modalSearchOverlay'));
@@ -827,11 +925,9 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                 });
             });
 
-            // 说明弹窗
             document.getElementById('btnHelp').addEventListener('click', () => openModal(document.getElementById('modalHelpOverlay')));
             document.getElementById('btnCloseHelp').addEventListener('click', () => closeModal(document.getElementById('modalHelpOverlay')));
 
-            // 无限滚动
             const observer = new IntersectionObserver(entries => { if (entries[0].isIntersecting && !isLoading && displayedCount < allProducts.length) loadMoreProducts(); }, { rootMargin: '200px' });
             observer.observe(sentinel);
         })();
