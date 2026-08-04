@@ -122,6 +122,21 @@
         .btn-contribute { background: var(--accent-gold); color: #1a2c3e; border: none; border-radius:20px; padding:6px 18px; font-size:0.85rem; cursor:pointer; transition:var(--transition-fast); font-weight:600; margin-right:auto; }
         .btn-contribute:hover { background: #d18e00; }
 
+        /* 新增资源计数样式 */
+        .resource-count {
+            margin-left: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .resource-count strong {
+            color: var(--blue-primary);
+            font-weight: 700;
+        }
+
         .products-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr)); gap:20px; padding:8px 0; min-height:300px; }
         .products-grid.list-view { display:flex; flex-direction:column; gap:12px; }
         .products-grid.list-view .product-card { flex-direction:row; align-items:center; padding:12px; gap:16px; border-radius:var(--radius-md); }
@@ -304,16 +319,17 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
         </div>
 
         <div class="view-toggle">
-            <button class="btn-contribute" id="btnContribute">📩 我要投稿</button>
+            <button class="btn-contribute" id="btnContribute">📩投稿/交货</button>
+            <span class="resource-count">共 <strong id="totalResourceCount">0</strong> 个资源</span>
             <button class="view-toggle__btn active" id="btnViewGrid">多列视图</button>
             <button class="view-toggle__btn" id="btnViewList">列表视图</button>
         </div>
 
         <div class="products-grid" id="productsGrid"></div>
         <div class="hidden-products-msg" id="hiddenProductsMsg" style="display:none;">内容已根据您的选择隐藏。</div>
-        <div class="loading-indicator" id="loadingIndicator"><div class="loading-spinner"></div><span>正在探索资源...</span></div>
+        <div class="loading-indicator" id="loadingIndicator"><div class="loading-spinner"></div><span>正在探索资源...第一次进入可能要加载较长时间</span></div>
         <div class="sentinel" id="sentinel"></div>
-        <div class="no-more no-more--hidden" id="noMoreMsg">— 已展示全部资源 —</div>
+        <div class="no-more no-more--hidden" id="noMoreMsg">— 已展示全部资源，若有资源缺失请刷新网页 —</div>
     </div>
 
     <!-- 购物车 -->
@@ -337,7 +353,7 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                 <div class="info-section__title">📢 最近更新公告</div>
                 <div class="info-section__content">2026.7.9更新公告：1.1.1版本及快照发布：
 1.快照添加了10004~10005多款全新资源。
-2.版本更改了开屏警告，确认后请确认年满10岁，否则后果由你自己承担。
+2.版本更改了开屏警告，确认后请确认年满18岁，否则后果由你自己承担。
 3.版本添加了购物车功能，支持一键获取，便于用户购买。
 4.版本添加了我要投稿功能，可以通过加QQ号投稿。
 5.版本更新了暑期服务时间。
@@ -381,7 +397,7 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
     <div class="modal-overlay modal-overlay--hidden" id="modalSearchOverlay">
         <div class="modal-panel">
             <button class="modal-close" id="btnCloseSearch">✕</button>
-            <div class="search-input-wrap"><input type="text" class="search-input" id="searchInput" placeholder="输入资源码或名称关键词..." style="width:100%; padding:16px 20px; background:#f5f7fa; border:2px solid #dce3ea; border-radius:30px; font-size:1.1rem;"></div>
+            <div class="search-input-wrap"><input type="text" class="search-input" id="searchInput" placeholder="输入资源码、名称或描述关键词..." style="width:100%; padding:16px 20px; background:#f5f7fa; border:2px solid #dce3ea; border-radius:30px; font-size:1.1rem;"></div>
             <div class="search-results" id="searchResults"></div>
         </div>
     </div>
@@ -439,7 +455,7 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
     <div class="modal-overlay modal-overlay--hidden" id="modalContributeOverlay">
         <div class="modal-panel modal-panel--small">
             <button class="modal-close" id="btnCloseContribute">✕</button>
-            <div class="purchase-highlight">投稿请加QQ号：<strong>3021581403</strong></div>
+            <div class="purchase-highlight">投稿或交换请加QQ号：<strong>3021581403</strong></div>
             <div class="purchase-notice"><strong>工作时间：工作日 11:00-22:00</strong>，投稿通过有偿，请注明来意（投稿），感谢！</div>
             <button class="btn-confirm" id="btnConfirmContribute" style="margin-top:12px;">确定</button>
         </div>
@@ -480,6 +496,7 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
             const cartBody = document.getElementById('cartBody');
             const cartCount = document.getElementById('cartCount');
             const cartTotalPrice = document.getElementById('cartTotalPrice');
+            const totalResourceCount = document.getElementById('totalResourceCount');
 
             function escapeHTML(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
             function formatPrice(p) { return `${p} r`; }
@@ -502,6 +519,13 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                         document.body.appendChild(textarea); textarea.select(); document.execCommand('copy'); document.body.removeChild(textarea); return true;
                     }
                 } catch (e) { return false; }
+            }
+
+            // 更新资源总数显示
+            function updateResourceCount() {
+                if (totalResourceCount) {
+                    totalResourceCount.textContent = allProducts.length;
+                }
             }
 
             // 不蒜子轮询
@@ -559,6 +583,7 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                 productsGrid.style.display = 'none';
                 hiddenProductsMsg.style.display = 'block';
                 loadingIndicator.classList.add('loading-indicator--hidden');
+                updateResourceCount(); // 可能为0
             });
 
             // 购物车
@@ -748,12 +773,13 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
             }
 
             async function loadAllProducts() {
-                loadingIndicator.innerHTML = '<div class="loading-spinner"></div><span>正在探索资源...</span>';
+                loadingIndicator.innerHTML = '<div class="loading-spinner"></div><span>正在探索资源...第一次加载可能需要较长时间</span>';
                 loadingIndicator.classList.remove('loading-indicator--hidden');
                 const codes = await discoverResourceCodes();
                 if (codes.length === 0) {
                     loadingIndicator.innerHTML = '<span>未发现任何资源，请检查库文件。</span>';
                     allDiscovered = true;
+                    updateResourceCount();
                     return;
                 }
                 const prods = [];
@@ -766,6 +792,7 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                 allProducts = prods;
                 allDiscovered = true;
                 loadingIndicator.classList.add('loading-indicator--hidden');
+                updateResourceCount();
                 if (allProducts.length > 0) loadMoreProducts();
                 else loadingIndicator.innerHTML = '<span>未能加载任何资源数据。</span>';
             }
@@ -878,7 +905,7 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
             document.getElementById('btnCloseDetail').addEventListener('click', () => closeModal(document.getElementById('modalDetailOverlay')));
             document.getElementById('btnClosePurchase').addEventListener('click', () => closeModal(document.getElementById('modalPurchaseOverlay')));
 
-            // 搜索
+            // 搜索（增强：支持描述搜索且标题/资源码优先）
             const searchInput = document.getElementById('searchInput');
             const searchResults = document.getElementById('searchResults');
             document.getElementById('btnSearch').addEventListener('click', () => { openModal(document.getElementById('modalSearchOverlay')); setTimeout(() => searchInput.focus(), 150); });
@@ -887,8 +914,22 @@ APEX 是一个用于文化交流的精选资源展示平台。所展示或可购
                 const q = searchInput.value.trim().toLowerCase();
                 searchResults.innerHTML = '';
                 if (!q) { searchResults.innerHTML = '<div style="text-align:center; padding:30px; color:#8899aa;">🔍 输入关键词开始搜索</div>'; return; }
-                const matched = allProducts.filter(p => p.code.toString().includes(q) || p.title.toLowerCase().includes(q));
-                if (matched.length === 0) { searchResults.innerHTML = '<div style="text-align:center; padding:30px; color:#8899aa;">未找到匹配资源</div>'; return; }
+                
+                // 优先级匹配：标题/资源码优先，其次描述
+                const primaryMatched = allProducts.filter(p => 
+                    p.code.toString().includes(q) || 
+                    p.title.toLowerCase().includes(q)
+                );
+                const secondaryMatched = allProducts.filter(p => {
+                    if (primaryMatched.includes(p)) return false;
+                    return p.description && p.description.toLowerCase().includes(q);
+                });
+                const matched = [...primaryMatched, ...secondaryMatched];
+                
+                if (matched.length === 0) { 
+                    searchResults.innerHTML = '<div style="text-align:center; padding:30px; color:#8899aa;">未找到匹配资源</div>'; 
+                    return; 
+                }
                 matched.forEach(p => {
                     const item = document.createElement('div');
                     item.style.cssText = 'display:flex; align-items:center; gap:14px; padding:12px; background:#f8fafc; border:1px solid #dce3ea; border-radius:10px; cursor:pointer; margin-bottom:8px;';
