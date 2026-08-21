@@ -1106,7 +1106,6 @@
 </head>
 <body>
 
-    <!-- 导航栏 -->
     <nav class="navbar" id="navbar">
         <div class="navbar-left">
             <span class="nav-logo" id="navLogo">APEX</span>
@@ -1126,7 +1125,6 @@
             </button>
         </div>
         <div class="navbar-right">
-            <!-- 公告按钮 -->
             <button class="icon-btn" id="announcementBtn" title="公告">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                 <span class="tooltip">公告</span>
@@ -1142,17 +1140,13 @@
         </div>
     </nav>
 
-    <!-- 主内容 -->
     <div class="main-content">
-
-        <!-- 首页 -->
         <div class="page active" id="page-home">
             <div class="hero-section">
                 <h1 class="main-title" id="mainTitle">APEX资源中心</h1>
-                <p class="subtitle" id="subtitle">一个汇聚精华的科技资源导航平台</p>
+                <p class="subtitle" id="subtitle">一个汇聚并托管个人精华资源的公共平台</p>
             </div>
 
-            <!-- 推荐资源 -->
             <div class="recommend-section" id="recommendSection" style="display:none;">
                 <div class="recommend-title">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -1161,7 +1155,6 @@
                 <div class="recommend-list" id="recommendList"></div>
             </div>
 
-            <!-- 分类栏 -->
             <div class="category-section" id="categorySection">
                 <div class="category-scroll" id="categoryScroll"></div>
                 <button class="cat-action-btn" id="multiSelectBtn" title="多选筛选">
@@ -1174,7 +1167,6 @@
                 </button>
             </div>
 
-            <!-- 资源列表 -->
             <div class="resource-list" id="resourceList">
                 <div class="loading-overlay" id="resourceLoading">
                     <div class="spinner"></div>
@@ -1188,7 +1180,6 @@
             </div>
         </div>
 
-        <!-- 搜索页 -->
         <div class="page" id="page-search">
             <div class="search-container">
                 <div class="search-input-wrap">
@@ -1200,7 +1191,6 @@
             </div>
         </div>
 
-        <!-- 关于页 -->
         <div class="page" id="page-about">
             <div class="about-container">
                 <h2 class="about-title">关于本站</h2>
@@ -1214,7 +1204,6 @@
         </div>
     </div>
 
-    <!-- 密码弹窗 -->
     <div class="modal-overlay" id="passwordModal" style="display:none;">
         <div class="modal-box">
             <div class="modal-title">
@@ -1232,7 +1221,6 @@
         </div>
     </div>
 
-    <!-- 身份切换弹窗 -->
     <div class="modal-overlay" id="identityModal" style="display:none;">
         <div class="modal-box">
             <div class="modal-title">
@@ -1249,7 +1237,6 @@
         </div>
     </div>
 
-    <!-- 公告弹窗 -->
     <div class="modal-overlay" id="announcementModal" style="display:none;">
         <div class="modal-box">
             <div class="modal-title">
@@ -1260,7 +1247,6 @@
         </div>
     </div>
 
-    <!-- 设置面板 -->
     <div class="settings-overlay" id="settingsOverlay" style="display:none;">
         <div class="settings-panel">
             <div class="settings-header">
@@ -1355,7 +1341,6 @@
 
     <script>
         (function() {
-            // ============ 全局状态 ============
             const state = {
                 resources: [],
                 categories: [],
@@ -1380,7 +1365,6 @@
                 }
             };
 
-            // ============ DOM 引用 ============
             const $ = (sel) => document.querySelector(sel);
             const $$ = (sel) => document.querySelectorAll(sel);
 
@@ -1437,7 +1421,6 @@
             const announcementModal = $('#announcementModal');
             const announcementContent = $('#announcementContent');
 
-            // ============ 工具函数 ============
             function debounce(fn, ms) {
                 let timer;
                 return function(...args) {
@@ -1474,7 +1457,6 @@
                 }
             }
 
-            // ============ 主题管理 ============
             function applyTheme(theme) {
                 state.theme = theme;
                 document.documentElement.setAttribute('data-theme', theme);
@@ -1491,7 +1473,6 @@
                 }
             }
 
-            // ============ 设置管理 ============
             function loadSettings() {
                 try {
                     const saved = localStorage.getItem('apex-settings');
@@ -1569,7 +1550,6 @@
                 }
             }
 
-            // ============ 导航 ============
             function navigateTo(page) {
                 state.currentPage = page;
                 Object.keys(pages).forEach(key => {
@@ -1593,7 +1573,6 @@
 
             navLogo.addEventListener('click', () => navigateTo('home'));
 
-            // ============ 滚动标题缩小 ============
             let scrollTimeout;
             window.addEventListener('scroll', () => {
                 clearTimeout(scrollTimeout);
@@ -1607,7 +1586,6 @@
                 }, 10);
             }, { passive: true });
 
-            // ============ 资源数据加载 ============
             async function fetchResourceFile(id, filename) {
                 const url = `core/list/${id}/${filename}`;
                 return await fetchText(url);
@@ -1728,7 +1706,6 @@
                 }
             }
 
-            // ============ 分类处理 ============
             function extractCategories() {
                 const cats = new Set();
                 state.resources.forEach(r => {
@@ -1802,7 +1779,6 @@
                 return filtered;
             }
 
-            // ============ 资源列表渲染 ============
             function renderResourceList() {
                 if (state.resources.length === 0) return;
                 const filtered = getFilteredResources();
@@ -1853,7 +1829,6 @@
                 return div.innerHTML;
             }
 
-            // ============ 推荐资源 ============
             async function loadRecommendations() {
                 const newContent = await fetchText('core/show.txt');
                 if (!newContent || newContent.trim() === '') {
@@ -1885,7 +1860,6 @@
                 });
             }
 
-            // ============ 密码验证 ============
             let pendingResource = null;
 
             function showPasswordModal(resource) {
@@ -1922,8 +1896,10 @@
                 }
                 const input = modalPassword.value.trim();
                 if (input === pendingResource.key.trim()) {
+                    // 修复：先保存目标 URL，再隐藏弹窗
+                    const targetUrl = new URL(pendingResource.htmlPath, window.location.origin).href;
                     hidePasswordModal();
-                    window.location.href = new URL(pendingResource.htmlPath, window.location.origin).href;
+                    window.location.href = targetUrl;
                 } else {
                     modalError.style.display = 'block';
                     modalPassword.value = '';
@@ -1935,7 +1911,6 @@
                 if (e.key === 'Enter') modalConfirm.click();
             });
 
-            // ============ 身份切换 ============
             identityBtn.addEventListener('click', () => {
                 if (state.isAdmin) {
                     state.isAdmin = false;
@@ -1987,7 +1962,6 @@
                 if (e.key === 'Enter') adminConfirm.click();
             });
 
-            // ============ 公告 ============
             announcementBtn.addEventListener('click', async () => {
                 announcementContent.textContent = '加载中...';
                 announcementModal.style.display = 'flex';
@@ -2001,7 +1975,6 @@
                 }
             });
 
-            // ============ 搜索 ============
             const debouncedSearch = debounce(() => {
                 const query = searchInput.value.trim().toLowerCase();
                 if (!query) {
@@ -2075,7 +2048,6 @@
                 if (e.key === 'Enter') debouncedSearch();
             });
 
-            // ============ 关于页面 ============
             async function loadAboutContent() {
                 state.aboutFilesLoaded = true;
                 aboutLoading.style.display = 'flex';
@@ -2145,7 +2117,6 @@
                 aboutContent.innerHTML = html;
             }
 
-            // ============ 多选和排序 ============
             multiSelectBtn.addEventListener('click', () => {
                 state.multiSelectMode = !state.multiSelectMode;
                 multiSelectBtn.classList.toggle('active', state.multiSelectMode);
@@ -2169,7 +2140,6 @@
                 }
             });
 
-            // ============ 设置面板 ============
             settingsBtn.addEventListener('click', () => {
                 settingsOverlay.style.display = 'flex';
             });
@@ -2236,7 +2206,6 @@
                 saveSettings();
             });
 
-            // ============ 不蒜子统计 ============
             (function loadBusuanzi() {
                 const script = document.createElement('script');
                 script.async = true;
@@ -2245,7 +2214,6 @@
                 document.head.appendChild(script);
             })();
 
-            // ============ 键盘快捷键 ============
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     if (passwordModal.style.display === 'flex') hidePasswordModal();
@@ -2260,7 +2228,6 @@
                 }
             });
 
-            // ============ 初始化 ============
             async function init() {
                 loadSettings();
                 applyTheme(state.theme || 'light');
@@ -2274,7 +2241,7 @@
             window.addEventListener('resize', () => {});
 
             console.log('APEX资源中心 已加载');
-            console.log('提示：资源目录为 core/list/，推荐文件为 core/show.txt，公告文件为 core/new.txt');
+            console.log('资源目录：core/list/，推荐文件：core/show.txt，公告文件：core/new.txt');
         })();
     </script>
 </body>
