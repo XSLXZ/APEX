@@ -1779,6 +1779,13 @@
                 return filtered;
             }
 
+            // 统一的资源打开函数：新标签页打开
+            function openResource(resource) {
+                if (!resource) return;
+                const targetUrl = new URL(resource.htmlPath, window.location.origin).href;
+                window.open(targetUrl, '_blank', 'noopener');
+            }
+
             function renderResourceList() {
                 if (state.resources.length === 0) return;
                 const filtered = getFilteredResources();
@@ -1817,7 +1824,7 @@
                         if (resource.locked && !state.isAdmin) {
                             showPasswordModal(resource);
                         } else {
-                            window.location.href = new URL(resource.htmlPath, window.location.origin).href;
+                            openResource(resource);
                         }
                     });
                 });
@@ -1853,7 +1860,7 @@
                         if (resource.locked && !state.isAdmin) {
                             showPasswordModal(resource);
                         } else {
-                            window.location.href = new URL(resource.htmlPath, window.location.origin).href;
+                            openResource(resource);
                         }
                     });
                     recommendList.appendChild(chip);
@@ -1896,10 +1903,9 @@
                 }
                 const input = modalPassword.value.trim();
                 if (input === pendingResource.key.trim()) {
-                    // 修复：先保存目标 URL，再隐藏弹窗
-                    const targetUrl = new URL(pendingResource.htmlPath, window.location.origin).href;
+                    const targetResource = pendingResource;
                     hidePasswordModal();
-                    window.location.href = targetUrl;
+                    openResource(targetResource);
                 } else {
                     modalError.style.display = 'block';
                     modalPassword.value = '';
@@ -2037,7 +2043,7 @@
                         if (resource.locked && !state.isAdmin) {
                             showPasswordModal(resource);
                         } else {
-                            window.location.href = new URL(resource.htmlPath, window.location.origin).href;
+                            openResource(resource);
                         }
                     });
                 });
